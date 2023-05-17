@@ -130,3 +130,6 @@ dist
 .pnp.*
 
 .DS_Store
+views/base64/*
+views/image/*
+views/html/*
