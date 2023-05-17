@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10 Minutes Notify</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    
+    html {
+      padding: 0;
+      margin: 0;
+      background: turquoise;
+      font-family: 'Roboto Slab', serif;
+    }
+    body {
+      padding: 20px 0; 
+      margin: 0;
+      font-weight: 700;
+      width: 600px;
+      box-sizing: content-box;
+      background-color: white;
+    }
+    header {
+      text-align: center;
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+    header p {
+      padding: 0;
+      margin: 0;
+    }
+    .head {
+      font-size: 18px;
+      padding: 10px 0;
+      display: grid;
+      grid-auto-flow: row;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+      color: #088395;
+    }
+    .head-item {
+      text-align: center;
+      border-right: 1px solid #8BACAA;
+      line-height: 14px;
+    }
+    .head-item:last-child {
+      border-right: none;
+    }
+    .head-item-text {
+      padding-bottom: 10px;
+      border-bottom: 1px solid #8BACAA;
+      display: inline-block;
+      min-width: 60%;
+    }
+    .row {
+      padding: 10px 0;
+      display: grid;
+      grid-auto-flow: row;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    }
+    .row-item {
+      text-align: center;
+    }
+    .diff-up {
+      color: #1B9C85;
+    }
+    .diff-down {
+      color: #B04759;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p style="color: #B04759;">10 Minutes Update</p>
+    <p style="color: #F99B7D;">17.05.2023 - 18:22:24</p>
+  </header>
+  <main>
+    <div class="table">
+      <div class="head">
+        <div class="head-item">
+          <span class="head-item-text">Bank</span> 
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Currency</span>
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Operation</span>
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Day start</span>
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Diff</span>
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Now</span>
+        </div>
+      </div>
+        <div class="row">
+          <div class="row-item">
+            PKO
+          </div>
+          <div class="row-item">
+            USD
+          </div>
+          <div class="row-item">
+            BUY
+          </div>
+          <div class="row-item">
+            4.11
+          </div>
+          <div class="row-item diff-up">
+            +0.01
+          </div>
+          <div class="row-item">
+            4.12
+          </div>
+        </div>
+        <div class="row">
+          <div class="row-item">
+            PKO
+          </div>
+          <div class="row-item">
+            USD
+          </div>
+          <div class="row-item">
+            SELL
+          </div>
+          <div class="row-item">
+            4.21
+          </div>
+          <div class="row-item diff-down">
+            +0.01
+          </div>
+          <div class="row-item">
+            4.22
+          </div>
+        </div>
+    </div>
+  </main>
+</body>
+<script>
+  
+</script>
+</html>
