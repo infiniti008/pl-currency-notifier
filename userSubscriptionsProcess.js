@@ -35,7 +35,7 @@ async function userSubscriptionsProcess() {
     await initBase();
     // -- Get Time
     const now = new Date();
-    const time = now.toLocaleTimeString().slice(0, 5);
+    const time = now.toLocaleTimeString().split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);
     // console.log('time', time);
 
     // -- Get Subscriptions
@@ -75,11 +75,12 @@ async function userSubscriptionsProcess() {
     }
 
     // -- Prepare Content to Render
-    const coutentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => prepareContentToRender(subscriptionData, now));
+    const cotentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => prepareContentToRender(subscriptionData, now));
 
-    // -- Proccess Images    
+    // -- Proccess Images
+    console.log(`Subscriptios Count = ${cotentToSubscriptions.length} | Country = ${options.country}`)
     const processImagesArray = [];
-    coutentToSubscriptions.forEach(content => {
+    cotentToSubscriptions.forEach(content => {
       processImagesArray.push(processImages(content, content.template));
     });
 
