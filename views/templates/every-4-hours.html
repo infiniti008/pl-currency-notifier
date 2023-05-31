@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4 Hours Notification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;600&display=swap" rel="stylesheet">
+  <style>
+    
+    html {
+      padding: 0;
+      margin: 0;
+      background: turquoise;
+      font-family: 'Roboto Slab', serif;
+    }
+    body {
+      padding: 20px 0; 
+      margin: 0;
+      font-weight: 700;
+      width: 600px;
+      box-sizing: content-box;
+      background-color: white;
+    }
+    header {
+      text-align: center;
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+    header p {
+      padding: 0;
+      margin: 0;
+    }
+    .head {
+      font-size: 18px;
+      padding: 10px 0;
+      display: grid;
+      grid-auto-flow: row;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+      color: #088395;
+    }
+    .head-item {
+      text-align: center;
+      border-right: 1px solid #8BACAA;
+      line-height: 14px;
+    }
+    .head-item:last-child {
+      border-right: none;
+    }
+    .head-item-text {
+      padding-bottom: 10px;
+      border-bottom: 1px solid #8BACAA;
+      display: inline-block;
+      min-width: 60%;
+    }
+    .row {
+      padding: 10px 0;
+      display: grid;
+      grid-auto-flow: row;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    }
+    .row-item {
+      text-align: center;
+    }
+    .diff-up {
+      color: #1B9C85;
+    }
+    .diff-down {
+      color: #B04759;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p style="color: #B04759;">{{name}}</p>
+    <p style="color: #F99B7D;">{{date}} - {{time}}</p>
+  </header>
+  <main>
+    <div class="table">
+      <div class="head">
+        <div class="head-item">
+          <span class="head-item-text">Bank</span> 
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Currency</span>
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Operation</span>
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Previous</span>
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Diff</span>
+        </div>
+        <div class="head-item">
+          <span class="head-item-text">Now</span>
+        </div>
+      </div>
+      {{#each records}}
+        <div class="row">
+          <div class="row-item">
+            {{ BANK }}
+          </div>
+          <div class="row-item">
+            {{ CURRENCY }}
+          </div>
+          <div class="row-item">
+            {{ OPERATION }}
+          </div>
+          <div class="row-item">
+            {{ PREVIOUS_VALUE }}
+          </div>
+          <div class="row-item {{DIFF_STYLE}}">
+            {{ DIFF }}
+          </div>
+          <div class="row-item">
+            {{ LAST_VALUE }}
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  </main>
+</body>
+<script>
+  
+</script>
+</html>
