@@ -35,9 +35,7 @@ async function userSubscriptionsProcess() {
     await initBase();
     // -- Get Time
     const now = new Date();
-    const time = now.toLocaleTimeString([], {
-      hour12: false,
-    }).split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);
+    const time = now.toLocaleTimeString(['ru-RU']).split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);
     // console.log('time', time);
 
     // -- Get Subscriptions
