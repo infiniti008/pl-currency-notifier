@@ -65,6 +65,10 @@ async function userSubscriptionsProcess() {
       const targetTimeToDiff = now.valueOf() - timeToGetDiff;
       const diffCurrencies = await getDiffCurrencies(options.country, item.keys, targetTimeToDiff);
 
+      item.keys = item.keys.filter(key => {
+        return lastCurrencies.some(lastCurrency => lastCurrency.key === key);
+      });
+
       item.keys.forEach(key => {
         // -- Add last values to subscription data
         item.lastCurrencies[key] = lastCurrencies.find(lastCurrencie => lastCurrencie.key === key);
@@ -172,8 +176,8 @@ function prepareContentToRender(subscription, now) {
 
   subscription.keys.forEach(key => {
     try {
-      const LAST_VALUE = subscription.lastCurrencies[key].value.toFixed(4);
-      const PREVIOUS_VALUE = subscription.diffCurrencies[key].value.toFixed(4);
+      const LAST_VALUE = subscription.lastCurrencies[key]?.value?.toFixed(4);
+      const PREVIOUS_VALUE = subscription.diffCurrencies[key]?.value?.toFixed(4) || subscription.lastCurrencies[key]?.value?.toFixed(4);
       let DIFF = (LAST_VALUE - PREVIOUS_VALUE);
       const isDiffGreatNull = DIFF >= 0;
       DIFF = DIFF.toFixed(4);
@@ -205,6 +209,7 @@ function prepareContentToRender(subscription, now) {
 
       connect.records.push(record);
     } catch (err) {
+      console.log('KEY PROCESS ERROR:', key)
       console.log(err);
     }
   });

@@ -25,7 +25,7 @@ export async function getKeys(country) {
   try {
     const configBaseName = process.env['configBaseName'];
     const keysCollection = await client.db(configBaseName).collection('keys_' + country);
-    const keys = await keysCollection.find({}).toArray();
+    const keys = await keysCollection.find({ isDeprecated: { $ne: true} }).toArray();
     return keys;
   } catch(err) {
     console.log(err);
