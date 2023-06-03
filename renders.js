@@ -1,3 +1,8 @@
+import * as dotenv from 'dotenv';
+dotenv.config({
+  path: './.env'
+});
+
 import axios from 'axios';
 import fs from 'fs';
 import Handlebars from 'handlebars';
@@ -8,7 +13,7 @@ const imageRenderHost = process.env.imageRenderHost;
 generators.base64 = async function (content, templateName, saveToFile, fileName) {
   return new Promise(async(resolve, reject) => {
     try {
-      const html = await fs.readFileSync(`./views/templates/${templateName}.html`).toString();
+      const html = await fs.readFileSync(`./views/templates/${templateName}.hbs`).toString();
       const response = await axios.post(imageRenderHost + '/api/render', {
         data: {
           html,
@@ -35,7 +40,7 @@ generators.base64 = async function (content, templateName, saveToFile, fileName)
 generators.image = function (content, templateName) {
   return new Promise(async(resolve, reject) => {
     try {
-      const html = await fs.readFileSync(`./views/templates/${templateName}.html`).toString();
+      const html = await fs.readFileSync(`./views/templates/${templateName}.hbs`).toString();
       const response = await axios.post(imageRenderHost + '/api/render', {
         data: {
           html,
@@ -74,7 +79,7 @@ generators.image = function (content, templateName) {
 
 generators.html = async function (content, templateName) {
   try {
-    const templateSource = fs.readFileSync(`./views/templates/${templateName}.html`, 'utf8');
+    const templateSource = fs.readFileSync(`./views/templates/${templateName}.hbs`, 'utf8');
 
     const template = Handlebars.compile(templateSource);
 

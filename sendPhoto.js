@@ -13,7 +13,7 @@ const TELEGRAM_API = "https://api.telegram.org/bot" + botToken;
 export function sendPhoto(image, chatId) {
   return new Promise(async(resolve, reject) => {
     try {
-      const caption = '# | ' + new Date().toLocaleString('ru');
+      const caption = new Date().toLocaleString('ru-RU');
       const formData = new FormData();
 
       formData.append('chat_id', chatId);

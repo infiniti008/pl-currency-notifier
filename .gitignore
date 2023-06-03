@@ -133,3 +133,6 @@ dist
 views/base64/*
 views/image/*
 views/html/*
+data.json
+
+**/*.hbs.json

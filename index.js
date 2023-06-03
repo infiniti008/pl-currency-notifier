@@ -1,3 +1,4 @@
+import fs from 'fs';
 import generators from "./renders.js";
 import { Command } from'commander';
 
@@ -10,33 +11,10 @@ program
 
 const options = program.opts();
 
-const data = {
-  banks: [
-    {
-      BANK: 'PKO',
-      CURRENCY: 'USD',
-      OPERATION: 'BUY',
-      DAY_START: '4.11',
-      DIFF: '+0.01',
-      NOW: '4.12',
-      DIFF_STYLE: 'diff-up'
-    },
-    {
-      BANK: 'PKO',
-      CURRENCY: 'USD',
-      OPERATION: 'SELL',
-      DAY_START: '4.21',
-      DIFF: '+0.01',
-      NOW: '4.22',
-      DIFF_STYLE: 'diff-down'
-    }
-  ],
-  DATE: new Date().toLocaleDateString(),
-  TIME: new Date().toLocaleTimeString()
-};
+const data = JSON.parse(fs.readFileSync('./views/templates/test.hbs.json').toString());
 
 async function run () {
-  const count = 50;
+  const count = 1;
   const timetaken = "Time taken by render images - " + count;
   console.time(timetaken);
   const arr = []
@@ -63,7 +41,7 @@ async function runPerOneRequest () {
   console.timeEnd(timetaken);
 }
 
-// run();
+run();
 // runPerOneRequest()
 
 // node index.js -t html -tp pl-10-min

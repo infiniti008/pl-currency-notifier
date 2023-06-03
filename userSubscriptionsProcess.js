@@ -78,7 +78,7 @@ async function userSubscriptionsProcess() {
     const cotentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => prepareContentToRender(subscriptionData, now));
 
     // -- Proccess Images
-    console.log(`Subscriptios Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time}`)
+    console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time}`)
     const processImagesArray = [];
     cotentToSubscriptions.forEach(content => {
       processImagesArray.push(processImages(content, content.template));
@@ -109,7 +109,7 @@ function getTimeToGetDiff(interval) {
 function getSubscriptionColor(interval) {
   switch (interval) {
     case 'every-4-hours':
-      return '#068DA9';
+      return '#088395';
     case 'every-24-hours':
       return '#E55807';
   }
@@ -124,17 +124,39 @@ function getSubscriptionName(interval) {
   }
 }
 
+function getArrowClass(operation) {
+  let oClass = 'arrow-center';
+
+  if (operation?.toLowerCase() === 'buy' ) {
+    oClass = 'arrow-right';
+  } else if (operation?.toLowerCase() === 'sell' ) {
+    oClass = 'arrow-left';
+  }
+
+  return oClass;
+}
+
 function getTemplate(interval) {
   switch (interval) {
     case 'every-4-hours':
-      return 'every-4-hours';
+      return 'hourly-v1';
     case 'every-24-hours':
-      return 'every-4-hours'; // TODO - Update
+      return 'hourly-v1';
   }
 }
 
+function getFontWeight(interval) {
+  let weight = '700';
+
+  if (interval === 'every-24-hours') {
+    weight = '400';
+  }
+
+  return weight;
+}
+
 function prepareContentToRender(subscription, now) {
-  const date = now.toLocaleDateString();
+  const date = now.toLocaleDateString('ru-RU');
   const connect = {
     records: [],
     id: subscription._id.toString(),
@@ -144,31 +166,50 @@ function prepareContentToRender(subscription, now) {
     date,
     fileName: date + '-' + subscription.now + '-' + subscription._id.toString(),
     template: getTemplate(subscription.interval),
-    chatId: subscription.userId
+    chatId: subscription.userId,
+    fontWeight: getFontWeight(subscription.interval)
   };
 
   subscription.keys.forEach(key => {
-    const LAST_VALUE = subscription.lastCurrencies[key].value.toFixed(4);
-    const PREVIOUS_VALUE = subscription.diffCurrencies[key].value.toFixed(4);
-    const DIFF = (LAST_VALUE - PREVIOUS_VALUE).toFixed(4);
-    const DIFF_STYLE = DIFF >= 0 ? 'diff-up' : 'diff-down';
+    try {
+      const LAST_VALUE = subscription.lastCurrencies[key].value.toFixed(4);
+      const PREVIOUS_VALUE = subscription.diffCurrencies[key].value.toFixed(4);
+      let DIFF = (LAST_VALUE - PREVIOUS_VALUE);
+      const isDiffGreatNull = DIFF >= 0;
+      DIFF = DIFF.toFixed(4);
+      DIFF = isDiffGreatNull ? '+' + DIFF : DIFF; 
+      const DIFF_STYLE = isDiffGreatNull ? 'diff-up' : 'diff-down';
 
-    const record = {
-      TIME: subscription.now,
-      KEY: key,
-      BANK: subscription.lastCurrencies[key].bank,
-      CURRENCY: subscription.lastCurrencies[key].currency,
-      CURRENCY_BASE: subscription.lastCurrencies[key].currencyBase,
-      OPERATION: subscription.lastCurrencies[key].operation,
-      LAST_VALUE,
-      PREVIOUS_VALUE,
-      PREVIOUS_TIME: subscription.diffCurrencies[key].date,
-      DIFF,
-      DIFF_STYLE
-    };
+      const record = {
+        TIME: subscription.now,
+        KEY: key,
+        BANK: subscription.lastCurrencies[key].bank,
+        CURRENCY: subscription.lastCurrencies[key].currency,
+        CURRENCY_BASE: subscription.lastCurrencies[key].currencyBase,
+        OPERATION: subscription.lastCurrencies[key].operation,
+        LAST_VALUE,
+        LAST_VALUE_S: LAST_VALUE.slice(0, 4),
+        LAST_VALUE_E: LAST_VALUE.slice(4, 6),
+        PREVIOUS_VALUE,
+        PREVIOUS_VALUE_S: PREVIOUS_VALUE.slice(0, 4),
+        PREVIOUS_VALUE_E: PREVIOUS_VALUE.slice(4, 6),
+        PREVIOUS_TIME: subscription.diffCurrencies[key].date,
+        DIFF,
+        DIFF_S: DIFF.slice(0, 5),
+        DIFF_E: DIFF.slice(5, 7),
+        DIFF_STYLE,
+        NAME: subscription.lastCurrencies[key].name,
+        COLOR: subscription.lastCurrencies[key].bankColor,
+        ARROW_CLASS: getArrowClass(subscription.lastCurrencies[key].operation)
+      };
 
-    connect.records.push(record);
+      connect.records.push(record);
+    } catch (err) {
+      console.log(err);
+    }
   });
+
+  // console.log(JSON.stringify(connect));
 
   return connect;
 }
