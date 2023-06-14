@@ -67,7 +67,7 @@ async function userSubscriptionsJobPL() {
   console.log(`========== ${time} ==========`);
   console.log('==========================================');
 
-  const userSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', 'collection', 'subscriptions-users']);
+  const userSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', '--collection', 'subscriptions-users']);
 
   userSubscriptionsProcessPL.stdout.on('data', (data) => {
     console.log(`${data}`);
@@ -95,7 +95,7 @@ async function userSubscriptionsJobBY() {
   console.log(`========== ${time} ==========`);
   console.log('==========================================');
 
-  const userSubscriptionsJobBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', 'collection', 'subscriptions-users']);
+  const userSubscriptionsJobBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-users']);
 
   userSubscriptionsJobBY.stdout.on('data', (data) => {
     console.log(`${data}`);
@@ -123,7 +123,7 @@ async function telegramSubscriptionsJobPL() {
   console.log(`========== ${time} ==========`);
   console.log('==========================================');
 
-  const telegramSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', 'collection', 'subscriptions-telegram']);
+  const telegramSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', '--collection', 'subscriptions-telegram']);
 
   telegramSubscriptionsProcessPL.stdout.on('data', (data) => {
     console.log(`${data}`);
@@ -151,7 +151,7 @@ async function telegramSubscriptionsJobBY() {
   console.log(`========== ${time} ==========`);
   console.log('==========================================');
 
-  const telegramSubscriptionsJobBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', 'collection', 'subscriptions-telegram']);
+  const telegramSubscriptionsJobBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-telegram']);
 
   telegramSubscriptionsJobBY.stdout.on('data', (data) => {
     console.log(`${data}`);

@@ -87,7 +87,7 @@ async function userSubscriptionsProcess() {
     const cotentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => prepareContentToRender(subscriptionData, now));
 
     // -- Proccess Images
-    console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time}`)
+    console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`)
     const processImagesArray = [];
     cotentToSubscriptions.forEach(content => {
       processImagesArray.push(processImages(content, content.template));
