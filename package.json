@@ -5,7 +5,8 @@
   "type": "module",
   "main": "request.js",
   "scripts": {
-    "test": "node userSubscriptionsProcess --country pl --time 08:00 --template test"
+    "test-user": "node subscriptionsProcess --country pl --time 08:00 --template test --collection subscriptions-users",
+    "test-telegram": "node subscriptionsProcess --country by --time 08:00 --template test --collection subscriptions-telegram"
   },
   "repository": {
     "type": "git",

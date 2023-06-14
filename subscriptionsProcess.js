@@ -11,6 +11,7 @@ program
   .option('-c, --country <country>', 'Country')
   .option('-t, --time <time>', 'Time')
   .option('-tp, --template <template>', 'Template')
+  .option('-sc, --collection <collection>', 'Collection')
   .parse(process.argv);
 
 const options = program.opts();
@@ -43,7 +44,7 @@ async function userSubscriptionsProcess() {
     }
 
     // -- Get Subscriptions
-    const allSubscriptionsWithTimeByCountry = await getAllSubscriptionsWithTimeByCountry(time, options.country);
+    const allSubscriptionsWithTimeByCountry = await getAllSubscriptionsWithTimeByCountry(time, options.country, options.collection);
 
     if (!allSubscriptionsWithTimeByCountry) {
       await end();

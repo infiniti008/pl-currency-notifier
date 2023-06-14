@@ -119,9 +119,9 @@ export async function getDiffCurrencies(country, keys, timestamp) {
   }
 }
 
-export async function getAllSubscriptionsWithTimeByCountry(time, country) {
+export async function getAllSubscriptionsWithTimeByCountry(time, country, subscriptionsCollection) {
   try {
-    const subscriptions = await client.db('currency_app').collection('subscriptions-users');
+    const subscriptions = await client.db('currency_app').collection(subscriptionsCollection);
 
     const subscriptionsWithTime = await subscriptions.find(
       { 
