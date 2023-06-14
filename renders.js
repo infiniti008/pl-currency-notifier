@@ -19,7 +19,8 @@ generators.base64 = async function (content, templateName, saveToFile, fileName)
           html,
           type: 'png',
           content,
-          encoding: 'base64'
+          encoding: 'base64',
+          quality: 100
         },
         headers: {
           'Content-Type': 'application/json'

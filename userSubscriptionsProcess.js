@@ -9,6 +9,8 @@ const program = new Command();
 
 program
   .option('-c, --country <country>', 'Country')
+  .option('-t, --time <time>', 'Time')
+  .option('-tp, --template <template>', 'Template')
   .parse(process.argv);
 
 const options = program.opts();
@@ -35,9 +37,10 @@ async function userSubscriptionsProcess() {
     await initBase();
     // -- Get Time
     const now = new Date();
-    const time = now.toLocaleTimeString(['ru-RU']).split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);
-    // const time = '08:00';
-    // console.log('time', time);
+    let time = now.toLocaleTimeString(['ru-RU']).split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);
+    if (options.time) {
+      time = options.time;
+    }
 
     // -- Get Subscriptions
     const allSubscriptionsWithTimeByCountry = await getAllSubscriptionsWithTimeByCountry(time, options.country);
@@ -181,6 +184,10 @@ function getArrowClass(operation) {
 }
 
 function getTemplate(interval) {
+  if (options.template) {
+    return options.template;
+  }
+
   switch (interval) {
     case 'every-4-hours':
       return 'hourly-v1';

@@ -5,7 +5,7 @@
   "type": "module",
   "main": "request.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node userSubscriptionsProcess --country pl --time 08:00 --template test"
   },
   "repository": {
     "type": "git",

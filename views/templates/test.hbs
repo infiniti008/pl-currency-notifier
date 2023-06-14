@@ -19,7 +19,7 @@
       padding: 26px 0 10px;
       margin: 0;
       font-weight: 700;
-      width: 450px;
+      width: 500px;
       box-sizing: content-box;
       background-color: white;
       position: relative;
@@ -27,7 +27,7 @@
 
     header {
       text-align: center;
-      font-size: 26px;
+      font-size: 20px;
       margin-bottom: 16px;
     }
 
@@ -84,9 +84,8 @@
 
     .row-top {
       padding-top: 4px;
-      text-align: center;
-      font-size: 16px;
-      margin-right: 85px;
+      margin-left: 8px;
+      font-size: 14px;
     }
 
     .row-bottom {
@@ -132,11 +131,11 @@
     }
 
     .currency-s-diff {
-      font-weight: 900;
+      color: #D8D8D8;
     }
 
     .currency-e-diff {
-      color: #D8D8D8;
+      font-weight: 900;
     }
 
     .currency-s-last {
@@ -148,12 +147,16 @@
       height: 28px;
       margin: 0px 4px 0 10px;
       transform: rotate(-90deg);
+      fill: #47A992;
+      stroke: #47A992;
     }
 
     .arrow-right {
       height: 28px;
       margin: 2px 10px 0 4px;
       transform: rotate(90deg);
+      fill: #A459D1;
+      stroke: #A459D1;
     }
 
     .arrow-center {
@@ -167,11 +170,8 @@
     }
 
     .bot-image {
-      margin: 0px;
-      width: 80px;
-      position: absolute;
-      right: 8px;
-      top: 8px;
+      display: flex;
+      justify-content: center;
     }
 
     .bot-image img {
@@ -193,7 +193,7 @@
 </head>
 
 <body>
-  <header style="margin-right: 86px;">
+  <header>
     <p class="color-base">{{name}}</p>
     <p style="color: #A4D0A4;">{{date}} - {{time}}</p>
   </header>
@@ -223,7 +223,7 @@
             {{ CURRENCY }}
             <svg class="{{ ARROW_CLASS }}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
               viewBox="0 0 20 34" version="1.1">
-              <g fill="#A459D1" stroke="#A459D1" style="transform: translate(2px, 1px) scale(1.5);">
+              <g style="transform: translate(2px, 1px) scale(1.5);">
                 <path
                   d="M4.973,4.175 L9.975,7.919 L9.975,3.979 L4.973,0.036 L0.004,4.078 L0.004,7.996 L0.016,8.007 L4.973,4.175 Z">
                 </path>

@@ -19,7 +19,7 @@
       padding: 26px 0 10px;
       margin: 0;
       font-weight: 700;
-      width: 450px;
+      width: 500px;
       box-sizing: content-box;
       background-color: white;
       position: relative;
@@ -27,7 +27,7 @@
 
     header {
       text-align: center;
-      font-size: 26px;
+      font-size: 20px;
       margin-bottom: 16px;
     }
 
@@ -84,9 +84,8 @@
 
     .row-top {
       padding-top: 4px;
-      text-align: center;
-      font-size: 16px;
-      margin-right: 85px;
+      margin-left: 8px;
+      font-size: 14px;
     }
 
     .row-bottom {
@@ -171,11 +170,8 @@
     }
 
     .bot-image {
-      margin: 0px;
-      width: 80px;
-      position: absolute;
-      right: 8px;
-      top: 8px;
+      display: flex;
+      justify-content: center;
     }
 
     .bot-image img {
@@ -197,7 +193,7 @@
 </head>
 
 <body>
-  <header style="margin-right: 86px;">
+  <header>
     <p class="color-base">{{name}}</p>
     <p style="color: #A4D0A4;">{{date}} - {{time}}</p>
   </header>
