@@ -221,9 +221,12 @@ function prepareContentToRender(subscription, now) {
       let DIFF = (LAST_VALUE - PREVIOUS_VALUE);
       const isDiffGreatNull = DIFF >= 0;
       DIFF = DIFF.toFixed(4);
-      DIFF = isDiffGreatNull ? '+' + DIFF : DIFF; 
+      DIFF = isDiffGreatNull ? '+' + DIFF : DIFF;
       const DIFF_STYLE = isDiffGreatNull ? 'diff-up' : 'diff-down';
-      const delimiterDiff = DIFF.split('').findIndex(item => item !== '0' && item !== '.' && item !== '-' && item !== '+');
+      let delimiterDiff = DIFF.split('').findIndex(item => item !== '0' && item !== '.' && item !== '-' && item !== '+');
+      if (delimiterDiff < 0) {
+        delimiterDiff = DIFF.length;
+      }
 
       const record = {
         TIME: subscription.now,
