@@ -36,6 +36,7 @@ async function userSubscriptionsProcess() {
     // -- Get Time
     const now = new Date();
     const time = now.toLocaleTimeString(['ru-RU']).split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);
+    // const time = '08:00';
     // console.log('time', time);
 
     // -- Get Subscriptions
@@ -61,7 +62,7 @@ async function userSubscriptionsProcess() {
       item.now = time;
 
       // -- Get Values to Diff
-      const timeToGetDiff = getTimeToGetDiff(item.interval);
+      const timeToGetDiff = getTimeToGetDiff(time, item.times);
       const targetTimeToDiff = now.valueOf() - timeToGetDiff;
       const diffCurrencies = await getDiffCurrencies(options.country, item.keys, targetTimeToDiff);
 
@@ -101,21 +102,58 @@ async function end() {
   await closeConnection();
 }
 
-function getTimeToGetDiff(interval) {
-  switch (interval) {
-    case 'every-4-hours':
-      return 1000 * 60 * 60 * 4;
-    case 'every-24-hours':
-      return 1000 * 60 * 60 * 24;
+function getTimeToGetDiff(time, intervals) {
+  try {
+    const currentTimeIndex = intervals.indexOf(time);
+    let previousTimeIndex = currentTimeIndex - 1;
+    
+    if (previousTimeIndex < 0) {
+      previousTimeIndex = intervals.length - 1;
+    }
+
+    const previousTime = intervals[previousTimeIndex];
+
+    const timeInMinutes = getTimeMinutes(time);
+
+    const previousTimeInMinutes = getTimeMinutes(previousTime);
+
+    let diffInMinutes = timeInMinutes - previousTimeInMinutes;
+    if (previousTimeIndex > currentTimeIndex) {
+      diffInMinutes = timeInMinutes + (1440 - previousTimeInMinutes);
+    }
+    const diff = diffInMinutes * 1000 * 60;
+
+    return diff;
+  } catch(err) {
+    console.log(err);
+    return 1000 * 60 * 60 * 4;
   }
+}
+
+function getTimeMinutes(time) {
+   const splitedTime = time.split(':');
+   const hours = parseInt(splitedTime[0]);
+   const minutes = parseInt(splitedTime[1]);
+
+   return hours * 60 + minutes;
 }
 
 function getSubscriptionColor(interval) {
   switch (interval) {
+    case 'every-1-hours':
+      return '#A459D1';
+    case 'every-2-hours':
+      return '#F99B7D';
     case 'every-4-hours':
       return '#088395';
+    case 'every-6-hours':
+      return '#5C469C';
+    case 'every-12-hours':
+      return '#19A7CE';
     case 'every-24-hours':
       return '#E55807';
+    default:
+      return '#088395';
   }
 }
 
@@ -125,6 +163,8 @@ function getSubscriptionName(interval) {
       return '4 Hour Updates';
     case 'every-24-hours':
       return '24 Hour Updates';
+    default:
+      return 'Updates';
   }
 }
 
@@ -146,17 +186,9 @@ function getTemplate(interval) {
       return 'hourly-v1';
     case 'every-24-hours':
       return 'hourly-v1';
+    default:
+      return 'hourly-v1';
   }
-}
-
-function getFontWeight(interval) {
-  let weight = '700';
-
-  if (interval === 'every-24-hours') {
-    weight = '400';
-  }
-
-  return weight;
 }
 
 function prepareContentToRender(subscription, now) {
@@ -170,19 +202,20 @@ function prepareContentToRender(subscription, now) {
     date,
     fileName: date + '-' + subscription.now + '-' + subscription._id.toString(),
     template: getTemplate(subscription.interval),
-    chatId: subscription.userId,
-    fontWeight: getFontWeight(subscription.interval)
+    chatId: subscription.userId
   };
 
   subscription.keys.forEach(key => {
     try {
       const LAST_VALUE = subscription.lastCurrencies[key]?.value?.toFixed(4);
       const PREVIOUS_VALUE = subscription.diffCurrencies[key]?.value?.toFixed(4) || subscription.lastCurrencies[key]?.value?.toFixed(4);
+
       let DIFF = (LAST_VALUE - PREVIOUS_VALUE);
       const isDiffGreatNull = DIFF >= 0;
       DIFF = DIFF.toFixed(4);
       DIFF = isDiffGreatNull ? '+' + DIFF : DIFF; 
       const DIFF_STYLE = isDiffGreatNull ? 'diff-up' : 'diff-down';
+      const delimiterDiff = DIFF.split('').findIndex(item => item !== '0' && item !== '.' && item !== '-' && item !== '+');
 
       const record = {
         TIME: subscription.now,
@@ -199,8 +232,8 @@ function prepareContentToRender(subscription, now) {
         PREVIOUS_VALUE_E: PREVIOUS_VALUE.slice(4, 6),
         PREVIOUS_TIME: subscription.diffCurrencies[key].date,
         DIFF,
-        DIFF_S: DIFF.slice(0, 5),
-        DIFF_E: DIFF.slice(5, 7),
+        DIFF_S: DIFF.slice(0, delimiterDiff),
+        DIFF_E: DIFF.slice(delimiterDiff, 7),
         DIFF_STYLE,
         NAME: subscription.lastCurrencies[key].name,
         COLOR: subscription.lastCurrencies[key].bankColor,
