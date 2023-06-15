@@ -184,18 +184,18 @@ function getArrowClass(operation) {
   return oClass;
 }
 
-function getTemplate(interval) {
+function getTemplate(collectionName) {
   if (options.template) {
     return options.template;
   }
 
-  switch (interval) {
-    case 'every-4-hours':
-      return 'hourly-v1';
-    case 'every-24-hours':
-      return 'hourly-v1';
+  switch (collectionName) {
+    case 'subscriptions-users':
+      return 'subscriptions-users';
+    case 'subscriptions-telegram':
+      return 'subscriptions-telegram';
     default:
-      return 'hourly-v1';
+      return 'subscriptions-users';
   }
 }
 
@@ -208,8 +208,9 @@ function prepareContentToRender(subscription, now) {
     color: subscription.color || getSubscriptionColor(subscription.interval),
     time: subscription.now,
     date,
+    dateTime: now.toLocaleString('ru-RU'),
     fileName: date + '-' + subscription.now + '-' + subscription._id.toString(),
-    template: getTemplate(subscription.interval),
+    template: getTemplate(options.collection),
     chatId: subscription.userId
   };
 
@@ -251,6 +252,7 @@ function prepareContentToRender(subscription, now) {
         ARROW_CLASS: getArrowClass(subscription.lastCurrencies[key].operation)
       };
 
+      connect.previousDateTime = new Date(subscription.diffCurrencies[key].timestamp).toLocaleString(['ru-RU']);
       connect.records.push(record);
     } catch (err) {
       console.log('KEY PROCESS ERROR:', key)
