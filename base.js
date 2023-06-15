@@ -119,21 +119,27 @@ export async function getDiffCurrencies(country, keys, timestamp) {
   }
 }
 
-export async function getAllSubscriptionsWithTimeByCountry(time, country, subscriptionsCollection) {
+export async function getAllSubscriptionsWithTimeByCountry(time, country, subscriptionsCollection, subscriptionId) {
   try {
     const subscriptions = await client.db('currency_app').collection(subscriptionsCollection);
 
-    const subscriptionsWithTime = await subscriptions.find(
-      { 
-        times: {
-          $elemMatch: { $eq: time }
-        },
-        country: { $eq: country }
-      },
-      {}
-    ).toArray();
+    if (subscriptionId) {
+      const subscriptionById = await subscriptions.findOne({ _id: new ObjectId(subscriptionId) })
 
-    return subscriptionsWithTime;
+      return [subscriptionById];
+    } else {
+      const subscriptionsWithTime = await subscriptions.find(
+        { 
+          times: {
+            $elemMatch: { $eq: time }
+          },
+          country: { $eq: country }
+        },
+        {}
+      ).toArray();
+
+      return subscriptionsWithTime;
+    }
   } catch(err) {
     console.log(err);
     return null;

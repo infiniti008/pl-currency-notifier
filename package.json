@@ -6,7 +6,7 @@
   "main": "request.js",
   "scripts": {
     "test-user": "node subscriptionsProcess --country by --time 08:00 --template test --collection subscriptions-users",
-    "test-telegram": "node subscriptionsProcess --country by --time 08:00 --template test --collection subscriptions-telegram"
+    "test-telegram": "node subscriptionsProcess --country by --time 13:20 --template test --collection subscriptions-telegram --id  648a17a55bd0250007cf0cb4"
   },
   "repository": {
     "type": "git",

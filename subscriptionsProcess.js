@@ -12,6 +12,7 @@ program
   .option('-t, --time <time>', 'Time')
   .option('-tp, --template <template>', 'Template')
   .option('-sc, --collection <collection>', 'Collection')
+  .option('-sid, --id <id>', 'Subscription Id')
   .parse(process.argv);
 
 const options = program.opts();
@@ -44,7 +45,7 @@ async function userSubscriptionsProcess() {
     }
 
     // -- Get Subscriptions
-    const allSubscriptionsWithTimeByCountry = await getAllSubscriptionsWithTimeByCountry(time, options.country, options.collection);
+    const allSubscriptionsWithTimeByCountry = await getAllSubscriptionsWithTimeByCountry(time, options.country, options.collection, options.id);
 
     if (!allSubscriptionsWithTimeByCountry) {
       await end();
@@ -87,7 +88,7 @@ async function userSubscriptionsProcess() {
     const cotentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => prepareContentToRender(subscriptionData, now));
 
     // -- Proccess Images
-    console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`)
+    console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
     const processImagesArray = [];
     cotentToSubscriptions.forEach(content => {
       processImagesArray.push(processImages(content, content.template));
