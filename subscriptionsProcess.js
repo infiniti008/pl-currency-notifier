@@ -67,7 +67,7 @@ async function userSubscriptionsProcess() {
       item.now = time;
 
       // -- Get Values to Diff
-      const timeToGetDiff = getTimeToGetDiff(time, item.times);
+      const timeToGetDiff = getTimeToGetDiff(time, item.times, item.timeToGetDiff);
       const targetTimeToDiff = now.valueOf() - timeToGetDiff;
       const diffCurrencies = await getDiffCurrencies(options.country, item.keys, targetTimeToDiff);
 
@@ -91,7 +91,9 @@ async function userSubscriptionsProcess() {
     console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
     const processImagesArray = [];
     cotentToSubscriptions.forEach(content => {
-      processImagesArray.push(processImages(content, content.template));
+      if (content) {
+        processImagesArray.push(processImages(content, content.template));
+      }
     });
 
     await Promise.all(processImagesArray);
@@ -107,7 +109,7 @@ async function end() {
   await closeConnection();
 }
 
-function getTimeToGetDiff(time, intervals) {
+function getTimeToGetDiff(time, intervals, timeToGetDiff) {
   try {
     const currentTimeIndex = intervals.indexOf(time);
     let previousTimeIndex = currentTimeIndex - 1;
@@ -116,14 +118,14 @@ function getTimeToGetDiff(time, intervals) {
       previousTimeIndex = intervals.length - 1;
     }
 
-    const previousTime = intervals[previousTimeIndex];
+    const previousTime = timeToGetDiff ? timeToGetDiff : intervals[previousTimeIndex];
 
     const timeInMinutes = getTimeMinutes(time);
 
     const previousTimeInMinutes = getTimeMinutes(previousTime);
 
     let diffInMinutes = timeInMinutes - previousTimeInMinutes;
-    if (previousTimeIndex > currentTimeIndex) {
+    if (!timeToGetDiff && previousTimeIndex > currentTimeIndex) {
       diffInMinutes = timeInMinutes + (1440 - previousTimeInMinutes);
     }
     const diff = diffInMinutes * 1000 * 60;
@@ -212,7 +214,9 @@ function prepareContentToRender(subscription, now) {
     dateTime: now.toLocaleString('ru-RU'),
     fileName: date + '-' + subscription.now + '-' + subscription._id.toString(),
     template: getTemplate(options.collection),
-    chatId: subscription.userId
+    chatId: subscription.userId,
+    platform: subscription.platform,
+    chanel: subscription.chanel
   };
 
   subscription.keys.forEach(key => {
@@ -262,6 +266,8 @@ function prepareContentToRender(subscription, now) {
   });
 
   // console.log(JSON.stringify(connect));
+  // console.log(connect);
+  // return null;
 
   return connect;
 }
@@ -276,9 +282,15 @@ function processImages(content) {
         return;
       }
 
-      // Send Image
-      await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chatId);
-      // console.log('sentPhoto', sentPhoto);
+      if (content.platform === 'subscriptions-user') {
+        // Send Image to Chat
+        await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chatId);
+      }
+
+      if (content.platform === 'subscriptions-telegram') {
+        // Send Image to Chanel
+        await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel);
+      }
       
       resolve(true);
     } catch(err) {
