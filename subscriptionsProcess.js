@@ -194,7 +194,7 @@ function getTemplate(collectionName) {
     case 'subscriptions-users':
       return 'subscriptions-users';
     case 'subscriptions-telegram':
-      return 'subscriptions-telegram';
+      return 'subscriptions-users';
     default:
       return 'subscriptions-users';
   }
