@@ -145,3 +145,13 @@ export async function getAllSubscriptionsWithTimeByCountry(time, country, subscr
     return null;
   }
 }
+
+export async function addDataToRender(dataToRender, subscriptionData) {
+  try {
+    const dataCollection = await client.db('config_app').collection('data-to-render');
+    const result = await dataCollection.insertOne({dataToRender, subscriptionData});
+
+  } catch(err) {
+    console.log(err);
+  }
+}

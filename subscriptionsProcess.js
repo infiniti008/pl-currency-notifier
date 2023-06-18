@@ -22,7 +22,8 @@ import {
   closeConnection,
   getAllSubscriptionsWithTimeByCountry,
   getLastCurrencies,
-  getDiffCurrencies
+  getDiffCurrencies,
+  addDataToRender
 } from './base.js';
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
@@ -69,6 +70,7 @@ async function userSubscriptionsProcess() {
       // -- Get Values to Diff
       const timeToGetDiff = getTimeToGetDiff(time, item.times, item.timeToGetDiff);
       const targetTimeToDiff = now.valueOf() - timeToGetDiff;
+      item.targetTimeToDiff = targetTimeToDiff;
       const diffCurrencies = await getDiffCurrencies(options.country, item.keys, targetTimeToDiff);
 
       item.keys = item.keys.filter(key => {
@@ -85,7 +87,13 @@ async function userSubscriptionsProcess() {
     }
 
     // -- Prepare Content to Render
-    const cotentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => prepareContentToRender(subscriptionData, now));
+    const cotentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => {
+      const content = prepareContentToRender(subscriptionData, now);
+
+      // -- Save content to base
+      addDataToRender(content, subscriptionData);
+      return content;
+    });
 
     // -- Proccess Images
     console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
@@ -216,7 +224,8 @@ function prepareContentToRender(subscription, now) {
     template: getTemplate(options.collection),
     chatId: subscription.userId,
     platform: subscription.platform,
-    chanel: subscription.chanel
+    chanel: subscription.chanel,
+    previousDateTime: new Date(subscription.targetTimeToDiff).toLocaleString(['ru-RU'])
   };
 
   subscription.keys.forEach(key => {
@@ -257,7 +266,6 @@ function prepareContentToRender(subscription, now) {
         ARROW_CLASS: getArrowClass(subscription.lastCurrencies[key].operation)
       };
 
-      connect.previousDateTime = new Date(subscription.diffCurrencies[key].timestamp).toLocaleString(['ru-RU']);
       connect.records.push(record);
     } catch (err) {
       console.log('KEY PROCESS ERROR:', key)
@@ -285,9 +293,7 @@ function processImages(content) {
       if (content.platform === 'subscriptions-user') {
         // Send Image to Chat
         await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chatId);
-      }
-
-      if (content.platform === 'subscriptions-telegram') {
+      } else if (content.platform === 'subscriptions-telegram') {
         // Send Image to Chanel
         await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel);
       }
