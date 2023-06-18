@@ -290,7 +290,7 @@ function processImages(content) {
         return;
       }
 
-      if (content.platform === 'subscriptions-user') {
+      if (content.platform === 'subscriptions-users') {
         // Send Image to Chat
         await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chatId);
       } else if (content.platform === 'subscriptions-telegram') {
