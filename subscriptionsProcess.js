@@ -63,36 +63,44 @@ async function userSubscriptionsProcess() {
     // -- Fill Subscriptions by Data
     for(let i = 0; i < allSubscriptionsWithTimeByCountry.length; i++) {
       const item = allSubscriptionsWithTimeByCountry[i];
-      item.lastCurrencies = {};
-      item.diffCurrencies = {};
-      item.now = time;
+      if (item.platform !== 'subscriptions-telegram-promo') {
+        
+        item.lastCurrencies = {};
+        item.diffCurrencies = {};
+        item.now = time;
 
-      // -- Get Values to Diff
-      const timeToGetDiff = getTimeToGetDiff(time, item.times, item.timeToGetDiff);
-      const targetTimeToDiff = now.valueOf() - timeToGetDiff;
-      item.targetTimeToDiff = targetTimeToDiff;
-      const diffCurrencies = await getDiffCurrencies(options.country, item.keys, targetTimeToDiff);
+        // -- Get Values to Diff
+        const timeToGetDiff = getTimeToGetDiff(time, item.times, item.timeToGetDiff);
+        const targetTimeToDiff = now.valueOf() - timeToGetDiff;
+        item.targetTimeToDiff = targetTimeToDiff;
+        const diffCurrencies = await getDiffCurrencies(options.country, item.keys, targetTimeToDiff);
 
-      item.keys = item.keys.filter(key => {
-        return lastCurrencies.some(lastCurrency => lastCurrency.key === key);
-      });
+        item.keys = item.keys.filter(key => {
+          return lastCurrencies.some(lastCurrency => lastCurrency.key === key);
+        });
 
-      item.keys.forEach(key => {
-        // -- Add last values to subscription data
-        item.lastCurrencies[key] = lastCurrencies.find(lastCurrencie => lastCurrencie.key === key);
+        item.keys.forEach(key => {
+          // -- Add last values to subscription data
+          item.lastCurrencies[key] = lastCurrencies.find(lastCurrencie => lastCurrencie.key === key);
 
-        // -- Add Diff values to subscription data
-        item.diffCurrencies[key] = diffCurrencies.find(diffCurrencie => diffCurrencie.key === key);
-      });
+          // -- Add Diff values to subscription data
+          item.diffCurrencies[key] = diffCurrencies.find(diffCurrencie => diffCurrencie.key === key);
+        });
+      }
     }
 
     // -- Prepare Content to Render
     const cotentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => {
-      const content = prepareContentToRender(subscriptionData, now);
+      if (subscriptionData.platform !== 'subscriptions-telegram-promo') {
+        const content = prepareContentToRender(subscriptionData, now);
 
-      // -- Save content to base
-      addDataToRender(content, subscriptionData);
-      return content;
+        // -- Save content to base
+        addDataToRender(content, subscriptionData);
+        return content;
+      }
+
+      subscriptionData.template = getTemplate(subscriptionData.platform);
+      return subscriptionData;
     });
 
     // -- Proccess Images
@@ -195,16 +203,18 @@ function getArrowClass(operation) {
   return oClass;
 }
 
-function getTemplate(collectionName) {
+function getTemplate(platform) {
   if (options.template) {
     return options.template;
   }
 
-  switch (collectionName) {
+  switch (platform) {
     case 'subscriptions-users':
       return 'subscriptions-users';
     case 'subscriptions-telegram':
       return 'subscriptions-users';
+    case 'subscriptions-telegram-promo':
+      return 'ask-donate';
     default:
       return 'subscriptions-users';
   }
@@ -221,7 +231,7 @@ function prepareContentToRender(subscription, now) {
     date,
     dateTime: now.toLocaleString('ru-RU'),
     fileName: date + '-' + subscription.now + '-' + subscription._id.toString(),
-    template: getTemplate(options.collection),
+    template: getTemplate(subscription.platform),
     chatId: subscription.userId,
     platform: subscription.platform,
     chanel: subscription.chanel,
@@ -296,6 +306,9 @@ function processImages(content) {
       } else if (content.platform === 'subscriptions-telegram') {
         // Send Image to Chanel
         await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel);
+      } else if (content.platform === 'subscriptions-telegram-promo') {
+        // Send Promo to Chanel
+        await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel, 'https://ko-fi.com/currency_notifications_app');
       }
       
       resolve(true);

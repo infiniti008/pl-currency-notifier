@@ -10,10 +10,10 @@ const botToken = process.env.botToken;
 
 const TELEGRAM_API = "https://api.telegram.org/bot" + botToken;
 
-export function sendPhoto(image, chatId) {
+export function sendPhoto(image, chatId, caption) {
   return new Promise(async(resolve, reject) => {
     try {
-      const caption = new Date().toLocaleString('ru-RU');
+      caption = caption ? caption : new Date().toLocaleString('ru-RU');
       const formData = new FormData();
 
       formData.append('chat_id', chatId);
