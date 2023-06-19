@@ -290,11 +290,14 @@ function processImages(content) {
         return;
       }
 
+      console.log('HAS IMAGE TO SEND');
       if (content.platform === 'subscriptions-users') {
         // Send Image to Chat
+        console.log('SEND IMAGE TO USER');
         await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chatId);
       } else if (content.platform === 'subscriptions-telegram') {
         // Send Image to Chanel
+        console.log('SEND IMAGE TO CHANEL');
         await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel);
       }
       
