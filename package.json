@@ -5,8 +5,10 @@
   "type": "module",
   "main": "request.js",
   "scripts": {
-    "test-user": "node subscriptionsProcess --country by --time 08:00 --template test --collection subscriptions-users",
-    "test-telegram": "node subscriptionsProcess --country by --time 13:20 --template test --collection subscriptions-telegram --id  648a17a55bd0250007cf0cb4"
+    "test-user": "node subscriptionsProcess --country pl --time 07:00 --collection subscriptions-users --id 648f2aabb29fef544bdd637d",
+    "test-telegram": "node subscriptionsProcess --country by --template test --time 08:30 --collection subscriptions-telegram --id 648c82e75bd0250007cf0cba",
+    "test-video": "node subscriptionsProcess --country pl --collection subscriptions-video --id 64901b1c8f013662e5e8ecf1",
+    "test-youtube": "node postYoutube.js"
   },
   "repository": {
     "type": "git",

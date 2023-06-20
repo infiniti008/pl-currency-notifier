@@ -146,10 +146,10 @@ export async function getAllSubscriptionsWithTimeByCountry(time, country, subscr
   }
 }
 
-export async function addDataToRender(dataToRender, subscriptionData) {
+export async function addDataToRender(record) {
   try {
     const dataCollection = await client.db('config_app').collection('data-to-render');
-    const result = await dataCollection.insertOne({dataToRender, subscriptionData});
+    const result = await dataCollection.insertOne(record);
 
   } catch(err) {
     console.log(err);

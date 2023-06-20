@@ -27,6 +27,7 @@ import {
 } from './base.js';
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
+import { sendVideo } from './sendVideo.js';
 
 async function userSubscriptionsProcess() {
   try {
@@ -94,8 +95,10 @@ async function userSubscriptionsProcess() {
       if (subscriptionData.platform !== 'subscriptions-telegram-promo') {
         const content = prepareContentToRender(subscriptionData, now);
 
-        // -- Save content to base
-        addDataToRender(content, subscriptionData);
+        if (subscriptionData.platform !== 'subscriptions-video') {
+          // -- Save content to base
+          addDataToRender({ content, subscriptionData });
+        }
         return content;
       }
 
@@ -215,6 +218,8 @@ function getTemplate(platform) {
       return 'subscriptions-users';
     case 'subscriptions-telegram-promo':
       return 'ask-donate';
+    case 'subscriptions-video':
+      return 'subscriptions-video';
     default:
       return 'subscriptions-users';
   }
@@ -235,7 +240,8 @@ function prepareContentToRender(subscription, now) {
     chatId: subscription.userId,
     platform: subscription.platform,
     chanel: subscription.chanel,
-    previousDateTime: new Date(subscription.targetTimeToDiff).toLocaleString(['ru-RU'])
+    previousDateTime: new Date(subscription.targetTimeToDiff).toLocaleString(['ru-RU']),
+    country: subscription.country
   };
 
   subscription.keys.forEach(key => {
@@ -309,6 +315,11 @@ function processImages(content) {
       } else if (content.platform === 'subscriptions-telegram-promo') {
         // Send Promo to Chanel
         await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel, 'https://ko-fi.com/currency_notifications_app');
+      } else if (content.platform === 'subscriptions-video') {
+        content.donareUrl = 'https://ko-fi.com/currency_notifications_app';
+        // Send Promo to Chanel
+        const uploadVideoResult = await sendVideo(renderedImage, content);
+        await addDataToRender({ content, uploadVideoResult });
       }
       
       resolve(true);

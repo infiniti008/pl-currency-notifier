@@ -136,3 +136,4 @@ views/html/*
 data.json
 
 **/*.hbs.json
+test.js
