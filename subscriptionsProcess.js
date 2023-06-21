@@ -144,7 +144,7 @@ function getTimeToGetDiff(time, intervals, timeToGetDiff) {
     const previousTimeInMinutes = getTimeMinutes(previousTime);
 
     let diffInMinutes = timeInMinutes - previousTimeInMinutes;
-    if (!timeToGetDiff && previousTimeIndex > currentTimeIndex) {
+    if (!timeToGetDiff && previousTimeIndex >= currentTimeIndex) {
       diffInMinutes = timeInMinutes + (1440 - previousTimeInMinutes);
     }
     const diff = diffInMinutes * 1000 * 60;
