@@ -6,7 +6,7 @@
   "main": "request.js",
   "scripts": {
     "test-user": "node subscriptionsProcess --country pl --time 07:00 --collection subscriptions-users --id 648f2aabb29fef544bdd637d",
-    "test-telegram": "node subscriptionsProcess --country by --template test --time 08:30 --collection subscriptions-telegram --id 648c82e75bd0250007cf0cba",
+    "test-telegram": "node subscriptionsProcess --country by --template test --time 08:55 --collection subscriptions-telegram",
     "test-video": "node subscriptionsProcess --country pl --collection subscriptions-video --id 64901b1c8f013662e5e8ecf1",
     "test-youtube": "node postYoutube.js"
   },
@@ -27,6 +27,7 @@
     "dotenv": "^16.1.0",
     "form-data": "^4.0.0",
     "handlebars": "^4.7.7",
-    "mongodb": "^5.5.0"
+    "mongodb": "^5.5.0",
+    "node-telegram-bot-api": "^0.61.0"
   }
 }

@@ -7,6 +7,8 @@ import { CronJob } from 'cron';
 import { spawn } from 'node:child_process';
 
 async function masterRun() {
+  telegramBotJob();
+  
   new CronJob(
     '*/1 * * * *',
     userSubscriptionsJobPL,
@@ -166,6 +168,34 @@ async function telegramSubscriptionsJobBY() {
     if (code === 0) {
       console.log('******************************************');
       console.log('***  EXIT JOB: Telegram Subscriptions BY  ****');
+      console.log(`********** ${time} **********`);
+      console.log('******************************************');
+    }
+  });
+}
+
+async function telegramBotJob() {
+  const time = new Date().toLocaleString();
+  console.log('==========================================');
+  console.log('==== START JOB: Telegram BOT ====');
+  console.log(`========== ${time} ==========`);
+  console.log('==========================================');
+
+  const telegramBotJob = spawn('node', ['./telegramBot.js']);
+
+  telegramBotJob.stdout.on('data', (data) => {
+    console.log(`${data}`);
+  });
+
+  telegramBotJob.stderr.on('data', (data) => {
+    console.error(`${data}`);
+  });
+
+  telegramBotJob.on('close', (code) => {
+    console.log(`Telegram Bot Process exited with code ${code}`);
+    if (code === 0) {
+      console.log('******************************************');
+      console.log('***  EXIT JOB: BOT  ****');
       console.log(`********** ${time} **********`);
       console.log('******************************************');
     }
