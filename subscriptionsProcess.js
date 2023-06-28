@@ -241,7 +241,8 @@ function prepareContentToRender(subscription, now) {
     platform: subscription.platform,
     chanel: subscription.chanel,
     previousDateTime: new Date(subscription.targetTimeToDiff).toLocaleString(['ru-RU']),
-    country: subscription.country
+    country: subscription.country,
+    tag: '#' + subscription.name.replaceAll(' ', '_').replaceAll('|', '')
   };
 
   subscription.keys.forEach(key => {
@@ -313,7 +314,7 @@ function processImages(content) {
         await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chatId);
       } else if (content.platform === 'subscriptions-telegram') {
         // Send Image to Chanel
-        await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel);
+        await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel, content.tag);
       } else if (content.platform === 'subscriptions-telegram-promo') {
         // Send Promo to Chanel
         await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel, 'https://ko-fi.com/currency_notifications_app');
