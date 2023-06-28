@@ -57,6 +57,34 @@ async function masterRun() {
     'Europe/Minsk'
   );
 
+
+
+  new CronJob(
+    '*/1 * * * *',
+    videoSubscriptionsJobPL,
+    async function() {
+      console.log('==========================================');
+      console.log('==== EXIT JOB: VIDEO Subscriptions PL  ====');
+      console.log('==========================================');
+    },
+    true,
+    'Europe/Warsaw'
+  );
+
+  new CronJob(
+    '*/1 * * * *',
+    videoSubscriptionsJobBY,
+    async function() {
+      console.log('==========================================');
+      console.log('====  EXIT JOB: VIDEO Subscriptions BY  ===');
+      console.log('==========================================');
+    },
+    true,
+    'Europe/Minsk'
+  );
+
+
+
   console.log('==========================================');
   console.log('====== APPLICATION HAS BEEN STARTED ======');
   console.log('==========================================');
@@ -153,17 +181,17 @@ async function telegramSubscriptionsJobBY() {
   console.log(`========== ${time} ==========`);
   console.log('==========================================');
 
-  const telegramSubscriptionsJobBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-telegram']);
+  const telegramSubscriptionsProcessBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-telegram']);
 
-  telegramSubscriptionsJobBY.stdout.on('data', (data) => {
+  telegramSubscriptionsProcessBY.stdout.on('data', (data) => {
     console.log(`${data}`);
   });
 
-  telegramSubscriptionsJobBY.stderr.on('data', (data) => {
+  telegramSubscriptionsProcessBY.stderr.on('data', (data) => {
     console.error(`${data}`);
   });
 
-  telegramSubscriptionsJobBY.on('close', (code) => {
+  telegramSubscriptionsProcessBY.on('close', (code) => {
     console.log(`user Subscriptions Process exited with code ${code}`);
     if (code === 0) {
       console.log('******************************************');
@@ -173,6 +201,66 @@ async function telegramSubscriptionsJobBY() {
     }
   });
 }
+
+
+
+async function videoSubscriptionsJobPL() {
+  const time = new Date().toLocaleString();
+  console.log('==========================================');
+  console.log('==== START JOB: VIDEO Subscriptions PL ====');
+  console.log(`========== ${time} ==========`);
+  console.log('==========================================');
+
+  const videoSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', '--collection', 'subscriptions-video']);
+
+  videoSubscriptionsProcessPL.stdout.on('data', (data) => {
+    console.log(`${data}`);
+  });
+
+  videoSubscriptionsProcessPL.stderr.on('data', (data) => {
+    console.error(`${data}`);
+  });
+
+  videoSubscriptionsProcessPL.on('close', (code) => {
+    console.log(`user Subscriptions Process exited with code ${code}`);
+    if (code === 0) {
+      console.log('******************************************');
+      console.log('***  EXIT JOB: Telegram Subscriptions PL  ****');
+      console.log(`********** ${time} **********`);
+      console.log('******************************************');
+    }
+  });
+}
+
+async function videoSubscriptionsJobBY() {
+  const time = new Date().toLocaleString();
+  console.log('==========================================');
+  console.log('==== START JOB: VIDEO Subscriptions BY ====');
+  console.log(`========== ${time} ==========`);
+  console.log('==========================================');
+
+  const videoSubscriptionsProcessBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-video']);
+
+  videoSubscriptionsProcessBY.stdout.on('data', (data) => {
+    console.log(`${data}`);
+  });
+
+  videoSubscriptionsProcessBY.stderr.on('data', (data) => {
+    console.error(`${data}`);
+  });
+
+  videoSubscriptionsProcessBY.on('close', (code) => {
+    console.log(`user Subscriptions Process exited with code ${code}`);
+    if (code === 0) {
+      console.log('******************************************');
+      console.log('***  EXIT JOB: VIDEO Subscriptions BY  ****');
+      console.log(`********** ${time} **********`);
+      console.log('******************************************');
+    }
+  });
+}
+
+
 
 async function telegramBotJob() {
   const time = new Date().toLocaleString();
