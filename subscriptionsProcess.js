@@ -242,7 +242,7 @@ function prepareContentToRender(subscription, now) {
     chanel: subscription.chanel,
     previousDateTime: new Date(subscription.targetTimeToDiff).toLocaleString(['ru-RU']),
     country: subscription.country,
-    tag: '#' + subscription.name.replaceAll(' ', '_').replaceAll('|', '')
+    tag: '#' + subscription.name.replaceAll(' ', '_').replaceAll('|', '').replaceAll('-', '')
   };
 
   subscription.keys.forEach(key => {
