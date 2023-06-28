@@ -247,7 +247,9 @@ function prepareContentToRender(subscription, now) {
   subscription.keys.forEach(key => {
     try {
       const LAST_VALUE = subscription.lastCurrencies[key]?.value?.toFixed(4);
+      const splitedLastValue = LAST_VALUE.split('.');
       const PREVIOUS_VALUE = subscription.diffCurrencies[key]?.value?.toFixed(4) || subscription.lastCurrencies[key]?.value?.toFixed(4);
+      const splitedPreviousValue = PREVIOUS_VALUE.split('.');
 
       let DIFF = (LAST_VALUE - PREVIOUS_VALUE);
       const isDiffGreatNull = DIFF >= 0;
@@ -267,11 +269,11 @@ function prepareContentToRender(subscription, now) {
         CURRENCY_BASE: subscription.lastCurrencies[key].currencyBase,
         OPERATION: subscription.lastCurrencies[key].operation,
         LAST_VALUE,
-        LAST_VALUE_S: LAST_VALUE.slice(0, 4),
-        LAST_VALUE_E: LAST_VALUE.slice(4, 6),
+        LAST_VALUE_S: `${splitedLastValue[0]}.${splitedLastValue[1][0]}${splitedLastValue[1][1]}`,
+        LAST_VALUE_E: `${splitedLastValue[1][2]}${splitedLastValue[1][3]}`,
         PREVIOUS_VALUE,
-        PREVIOUS_VALUE_S: PREVIOUS_VALUE.slice(0, 4),
-        PREVIOUS_VALUE_E: PREVIOUS_VALUE.slice(4, 6),
+        PREVIOUS_VALUE_S: `${splitedPreviousValue[0]}.${splitedPreviousValue[1][0]}${splitedPreviousValue[1][1]}`,
+        PREVIOUS_VALUE_E: `${splitedPreviousValue[1][2]}${splitedPreviousValue[1][3]}`,
         PREVIOUS_TIME: subscription.diffCurrencies[key].date,
         DIFF,
         DIFF_S: DIFF.slice(0, delimiterDiff),
