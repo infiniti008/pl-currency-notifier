@@ -4,6 +4,7 @@ dotenv.config({
 });
 
 import { Command } from'commander';
+import fs from 'fs';
 
 const program = new Command();
 
@@ -303,25 +304,37 @@ function processImages(content) {
   return new Promise(async(resolve, reject) => {
     try {
       // -- Render Image
-      const renderedImage = await generators.base64(content, content.template);
-      if (!renderedImage) {
+      const { imagePath = null, image = null } = await generators.base64(content, content.template);
+      if (!imagePath && !image) {
         reject(false);
         return;
       }
 
+      let imageBuffer = null;
+      if (image) {
+        imageBuffer = new Buffer.from(image, 'base64');
+      }
+      else if (imagePath) {
+        imageBuffer = fs.readFileSync(process.env.mediaFolderPath + imagePath);
+        content.imagePath = imagePath;
+      }
+
       if (content.platform === 'subscriptions-users') {
         // Send Image to Chat
-        await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chatId);
-      } else if (content.platform === 'subscriptions-telegram') {
+        await sendPhoto(imageBuffer, content.chatId);
+      }
+      else if (content.platform === 'subscriptions-telegram') {
         // Send Image to Chanel
-        await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel, content.tag);
-      } else if (content.platform === 'subscriptions-telegram-promo') {
+        await sendPhoto(imageBuffer, content.chanel, content.tag);
+      }
+      else if (content.platform === 'subscriptions-telegram-promo') {
         // Send Promo to Chanel
-        await sendPhoto(new Buffer.from(renderedImage, 'base64'), content.chanel, 'https://ko-fi.com/currency_notifications_app');
-      } else if (content.platform === 'subscriptions-video') {
+        await sendPhoto(imageBuffer, content.chanel, 'https://ko-fi.com/currency_notifications_app');
+      }
+      else if (content.platform === 'subscriptions-video') {
         content.donareUrl = 'https://ko-fi.com/currency_notifications_app';
         // Send Promo to Chanel
-        const uploadVideoResult = await sendVideo(renderedImage, content);
+        const uploadVideoResult = await sendVideo(imagePath, content);
         await addDataToRender({ content, uploadVideoResult });
       }
       
