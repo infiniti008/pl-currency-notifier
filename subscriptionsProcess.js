@@ -93,18 +93,13 @@ async function userSubscriptionsProcess() {
 
     // -- Prepare Content to Render
     const cotentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => {
-      if (subscriptionData.platform !== 'subscriptions-telegram-promo') {
-        const content = prepareContentToRender(subscriptionData, now);
+      const content = prepareContentToRender(subscriptionData, now, time);
 
-        if (subscriptionData.platform !== 'subscriptions-video') {
-          // -- Save content to base
-          addDataToRender({ content, subscriptionData });
-        }
-        return content;
+      if (subscriptionData.platform !== 'subscriptions-video') {
+        // -- Save content to base
+        addDataToRender({ content, subscriptionData });
       }
-
-      subscriptionData.template = getTemplate(subscriptionData.platform);
-      return subscriptionData;
+      return content;
     });
 
     // -- Proccess Images
@@ -226,17 +221,17 @@ function getTemplate(platform) {
   }
 }
 
-function prepareContentToRender(subscription, now) {
+function prepareContentToRender(subscription, now, time) {
   const date = now.toLocaleDateString('ru-RU');
   const connect = {
     records: [],
     id: subscription._id.toString(),
     name: subscription.name || getSubscriptionName(subscription.interval),
     color: subscription.color || getSubscriptionColor(subscription.interval),
-    time: subscription.now,
+    time: subscription.now || time,
     date,
     dateTime: now.toLocaleString('ru-RU'),
-    fileName: date + '-' + subscription.now + '-' + subscription._id.toString(),
+    fileName: date + '-' + (subscription.now ? subscription.now : time) + '-' + subscription._id.toString(),
     template: getTemplate(subscription.platform),
     chatId: subscription.userId,
     platform: subscription.platform,
@@ -248,7 +243,7 @@ function prepareContentToRender(subscription, now) {
     description: subscription.description
   };
 
-  subscription.keys.forEach(key => {
+  subscription.keys?.forEach(key => {
     try {
       const LAST_VALUE = subscription.lastCurrencies[key]?.value?.toFixed(4);
       const splitedLastValue = LAST_VALUE.split('.');

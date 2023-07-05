@@ -83,7 +83,17 @@ async function masterRun() {
     'Europe/Minsk'
   );
 
-
+  new CronJob(
+    '0 */12 * * *',
+    deleteMediaJob,
+    async function() {
+      console.log('==========================================');
+      console.log('====  EXIT JOB: DELETE MEDIA  ===');
+      console.log('==========================================');
+    },
+    true,
+    'Europe/Warsaw'
+  );
 
   console.log('==========================================');
   console.log('====== APPLICATION HAS BEEN STARTED ======');
@@ -202,8 +212,6 @@ async function telegramSubscriptionsJobBY() {
   });
 }
 
-
-
 async function videoSubscriptionsJobPL() {
   const time = new Date().toLocaleString();
   console.log('==========================================');
@@ -260,7 +268,33 @@ async function videoSubscriptionsJobBY() {
   });
 }
 
+async function deleteMediaJob() {
+  const time = new Date().toLocaleString();
+  console.log('==========================================');
+  console.log('==== START JOB: DELETE MEDIA ====');
+  console.log(`========== ${time} ==========`);
+  console.log('==========================================');
 
+  const deleteMediaProcess = spawn('node', ['./mediaManager']);
+
+  deleteMediaProcess.stdout.on('data', (data) => {
+    console.log(`${data}`);
+  });
+
+  deleteMediaProcess.stderr.on('data', (data) => {
+    console.error(`${data}`);
+  });
+
+  deleteMediaProcess.on('close', (code) => {
+    console.log(`Delete media Process exited with code ${code}`);
+    if (code === 0) {
+      console.log('******************************************');
+      console.log('***  EXIT JOB: DELETE MEDIA  ****');
+      console.log(`********** ${time} **********`);
+      console.log('******************************************');
+    }
+  });
+}
 
 async function telegramBotJob() {
   const time = new Date().toLocaleString();
