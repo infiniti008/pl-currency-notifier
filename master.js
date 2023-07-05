@@ -24,30 +24,6 @@ async function masterRun() {
     'Europe/Warsaw'
   );
   
-  // new CronJob(
-  //   '*/1 * * * *',
-  //   userSubscriptionsJobPL,
-  //   async function() {
-  //     console.log('==========================================');
-  //     console.log('==== EXIT JOB: User Subscriptions PL  ====');
-  //     console.log('==========================================');
-  //   },
-  //   true,
-  //   'Europe/Warsaw'
-  // );
-
-  // new CronJob(
-  //   '*/1 * * * *',
-  //   userSubscriptionsJobBY,
-  //   async function() {
-  //     console.log('==========================================');
-  //     console.log('====  EXIT JOB: User Subscriptions BY  ===');
-  //     console.log('==========================================');
-  //   },
-  //   true,
-  //   'Europe/Minsk'
-  // );
-
   new CronJob(
     '*/1 * * * *',
     async function() {
@@ -56,6 +32,9 @@ async function masterRun() {
 
       videoSubscriptionsJobPL();
       videoSubscriptionsJobBY();
+
+      storiesSubscriptionsJobPL();
+      storiesSubscriptionsJobBY();
     },
     async function() {
       console.log('==========================================');
@@ -65,54 +44,6 @@ async function masterRun() {
     true,
     'Europe/Warsaw'
   );
-
-  // new CronJob(
-  //   '*/1 * * * *',
-  //   telegramSubscriptionsJobPL,
-  //   async function() {
-  //     console.log('==========================================');
-  //     console.log('==== EXIT JOB: Telegram Subscriptions PL  ====');
-  //     console.log('==========================================');
-  //   },
-  //   true,
-  //   'Europe/Warsaw'
-  // );
-
-  // new CronJob(
-  //   '*/1 * * * *',
-  //   telegramSubscriptionsJobBY,
-  //   async function() {
-  //     console.log('==========================================');
-  //     console.log('====  EXIT JOB: Telegram Subscriptions BY  ===');
-  //     console.log('==========================================');
-  //   },
-  //   true,
-  //   'Europe/Minsk'
-  // );
-
-  // new CronJob(
-  //   '*/1 * * * *',
-  //   videoSubscriptionsJobPL,
-  //   async function() {
-  //     console.log('==========================================');
-  //     console.log('==== EXIT JOB: VIDEO Subscriptions PL  ====');
-  //     console.log('==========================================');
-  //   },
-  //   true,
-  //   'Europe/Warsaw'
-  // );
-
-  // new CronJob(
-  //   '*/1 * * * *',
-  //   videoSubscriptionsJobBY,
-  //   async function() {
-  //     console.log('==========================================');
-  //     console.log('====  EXIT JOB: VIDEO Subscriptions BY  ===');
-  //     console.log('==========================================');
-  //   },
-  //   true,
-  //   'Europe/Minsk'
-  // );
 
   new CronJob(
     '0 */12 * * *',
@@ -293,6 +224,62 @@ async function videoSubscriptionsJobBY() {
     if (code === 0) {
       console.log('******************************************');
       console.log('***  EXIT JOB: VIDEO Subscriptions BY  ****');
+      console.log(`********** ${time} **********`);
+      console.log('******************************************');
+    }
+  });
+}
+
+async function storiesSubscriptionsJobPL() {
+  const time = new Date().toLocaleString();
+  console.log('==========================================');
+  console.log('==== START JOB: STORIES Subscriptions PL ====');
+  console.log(`========== ${time} ==========`);
+  console.log('==========================================');
+
+  const storiesSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', '--collection', 'subscriptions-stories']);
+
+  storiesSubscriptionsProcessPL.stdout.on('data', (data) => {
+    console.log(`${data}`);
+  });
+
+  storiesSubscriptionsProcessPL.stderr.on('data', (data) => {
+    console.error(`${data}`);
+  });
+
+  storiesSubscriptionsProcessPL.on('close', (code) => {
+    console.log(`Stories Subscriptions Process exited with code ${code}`);
+    if (code === 0) {
+      console.log('******************************************');
+      console.log('***  EXIT JOB: STORIES Subscriptions PL  ****');
+      console.log(`********** ${time} **********`);
+      console.log('******************************************');
+    }
+  });
+}
+
+async function storiesSubscriptionsJobBY() {
+  const time = new Date().toLocaleString();
+  console.log('==========================================');
+  console.log('==== START JOB: STORIES Subscriptions BY ====');
+  console.log(`========== ${time} ==========`);
+  console.log('==========================================');
+
+  const storiesSubscriptionsProcessBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-stories']);
+
+  storiesSubscriptionsProcessBY.stdout.on('data', (data) => {
+    console.log(`${data}`);
+  });
+
+  storiesSubscriptionsProcessBY.stderr.on('data', (data) => {
+    console.error(`${data}`);
+  });
+
+  storiesSubscriptionsProcessBY.on('close', (code) => {
+    console.log(`Stories Subscriptions Process exited with code ${code}`);
+    if (code === 0) {
+      console.log('******************************************');
+      console.log('***  EXIT JOB: STORIES Subscriptions BY  ****');
       console.log(`********** ${time} **********`);
       console.log('******************************************');
     }

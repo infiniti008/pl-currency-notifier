@@ -29,6 +29,7 @@ import {
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
 import { sendVideo } from './sendVideo.js';
+import { sendStories } from './sendStories.js';
 
 async function userSubscriptionsProcess() {
   try {
@@ -216,6 +217,8 @@ function getTemplate(platform) {
       return 'ask-donate';
     case 'subscriptions-video':
       return 'subscriptions-video';
+    case 'subscriptions-stories':
+      return 'subscriptions-stories';
     default:
       return 'subscriptions-users';
   }
@@ -332,6 +335,11 @@ function processImages(content) {
         // Send Promo to Chanel
         const uploadVideoResult = await sendVideo(imagePath, content);
         await addDataToRender({ content, uploadVideoResult });
+      }
+      else if (content.platform === 'subscriptions-stories') {
+        // Send photo to Stories
+        console.log('subscriptions-stories');
+        await sendStories(content);
       }
       
       resolve(true);
