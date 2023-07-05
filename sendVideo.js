@@ -6,16 +6,14 @@ dotenv.config({
 import axios from 'axios';
 const videoRenderHost = process.env.videoRenderHost;
 
-export function sendVideo(imagePath, content) {
+export function sendVideo(content) {
   
   return new Promise(async(resolve, reject) => {
     try {
-      const response = await axios.post(videoRenderHost + '/api/generate', {
+      const response = await axios.post(videoRenderHost + '/api/send-video', {
         data: {
-          imagePath,
           content,
-          isRemoveMedia: true,
-          isSendToChanel: true
+          isRemoveMedia: true
         },
         headers: {
           'Content-Type': 'application/json'

@@ -333,8 +333,15 @@ function processImages(content) {
       }
       else if (content.platform === 'subscriptions-video') {
         // Send Promo to Chanel
-        const uploadVideoResult = await sendVideo(imagePath, content);
-        await addDataToRender({ content, uploadVideoResult });
+        const { videoPath = null } = await generators.video(content);
+
+        if (videoPath) {
+          content.videoPath = videoPath;
+
+          const uploadVideoResult = await sendVideo(content);
+          console.log(uploadVideoResult)
+          await addDataToRender({ content, uploadVideoResult });
+        }
       }
       else if (content.platform === 'subscriptions-stories') {
         // Send photo to Stories

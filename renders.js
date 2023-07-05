@@ -9,6 +9,7 @@ import Handlebars from 'handlebars';
 
 const generators = {};
 const imageRenderHost = process.env.imageRenderHost;
+const videoRenderHost = process.env.videoRenderHost;
 
 generators.base64 = async function (content, templateName, saveToFile, fileName) {
   return new Promise(async(resolve, reject) => {
@@ -73,6 +74,26 @@ generators.image = function (content, templateName) {
 
     } catch(e) {
       console.log(e);
+      reject(null);
+    }
+  });
+}
+
+generators.video = async function (content) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      const response = await axios.post(videoRenderHost + '/api/generate-video', {
+        data: {
+          content
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      resolve(response.data);
+    } catch (error) {
+      console.error(error.message);
       reject(null);
     }
   });
