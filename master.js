@@ -8,80 +8,111 @@ import { spawn } from 'node:child_process';
 
 async function masterRun() {
   telegramBotJob();
+
+  new CronJob(
+    '*/1 * * * *',
+    async function() {
+      userSubscriptionsJobPL();
+      userSubscriptionsJobBY();
+    },
+    async function() {
+      console.log('==========================================');
+      console.log('===== EXIT JOB: User Subscriptions  ======');
+      console.log('==========================================');
+    },
+    true,
+    'Europe/Warsaw'
+  );
   
+  // new CronJob(
+  //   '*/1 * * * *',
+  //   userSubscriptionsJobPL,
+  //   async function() {
+  //     console.log('==========================================');
+  //     console.log('==== EXIT JOB: User Subscriptions PL  ====');
+  //     console.log('==========================================');
+  //   },
+  //   true,
+  //   'Europe/Warsaw'
+  // );
+
+  // new CronJob(
+  //   '*/1 * * * *',
+  //   userSubscriptionsJobBY,
+  //   async function() {
+  //     console.log('==========================================');
+  //     console.log('====  EXIT JOB: User Subscriptions BY  ===');
+  //     console.log('==========================================');
+  //   },
+  //   true,
+  //   'Europe/Minsk'
+  // );
+
   new CronJob(
     '*/1 * * * *',
-    userSubscriptionsJobPL,
+    async function() {
+      telegramSubscriptionsJobPL();
+      telegramSubscriptionsJobBY();
+
+      videoSubscriptionsJobPL();
+      videoSubscriptionsJobBY();
+    },
     async function() {
       console.log('==========================================');
-      console.log('==== EXIT JOB: User Subscriptions PL  ====');
+      console.log('==== EXIT JOB: Chanel Subscriptions  ====');
       console.log('==========================================');
     },
     true,
     'Europe/Warsaw'
   );
 
-  new CronJob(
-    '*/1 * * * *',
-    userSubscriptionsJobBY,
-    async function() {
-      console.log('==========================================');
-      console.log('====  EXIT JOB: User Subscriptions BY  ===');
-      console.log('==========================================');
-    },
-    true,
-    'Europe/Minsk'
-  );
+  // new CronJob(
+  //   '*/1 * * * *',
+  //   telegramSubscriptionsJobPL,
+  //   async function() {
+  //     console.log('==========================================');
+  //     console.log('==== EXIT JOB: Telegram Subscriptions PL  ====');
+  //     console.log('==========================================');
+  //   },
+  //   true,
+  //   'Europe/Warsaw'
+  // );
 
-  new CronJob(
-    '*/1 * * * *',
-    telegramSubscriptionsJobPL,
-    async function() {
-      console.log('==========================================');
-      console.log('==== EXIT JOB: Telegram Subscriptions PL  ====');
-      console.log('==========================================');
-    },
-    true,
-    'Europe/Warsaw'
-  );
+  // new CronJob(
+  //   '*/1 * * * *',
+  //   telegramSubscriptionsJobBY,
+  //   async function() {
+  //     console.log('==========================================');
+  //     console.log('====  EXIT JOB: Telegram Subscriptions BY  ===');
+  //     console.log('==========================================');
+  //   },
+  //   true,
+  //   'Europe/Minsk'
+  // );
 
-  new CronJob(
-    '*/1 * * * *',
-    telegramSubscriptionsJobBY,
-    async function() {
-      console.log('==========================================');
-      console.log('====  EXIT JOB: Telegram Subscriptions BY  ===');
-      console.log('==========================================');
-    },
-    true,
-    'Europe/Minsk'
-  );
+  // new CronJob(
+  //   '*/1 * * * *',
+  //   videoSubscriptionsJobPL,
+  //   async function() {
+  //     console.log('==========================================');
+  //     console.log('==== EXIT JOB: VIDEO Subscriptions PL  ====');
+  //     console.log('==========================================');
+  //   },
+  //   true,
+  //   'Europe/Warsaw'
+  // );
 
-
-
-  new CronJob(
-    '*/1 * * * *',
-    videoSubscriptionsJobPL,
-    async function() {
-      console.log('==========================================');
-      console.log('==== EXIT JOB: VIDEO Subscriptions PL  ====');
-      console.log('==========================================');
-    },
-    true,
-    'Europe/Warsaw'
-  );
-
-  new CronJob(
-    '*/1 * * * *',
-    videoSubscriptionsJobBY,
-    async function() {
-      console.log('==========================================');
-      console.log('====  EXIT JOB: VIDEO Subscriptions BY  ===');
-      console.log('==========================================');
-    },
-    true,
-    'Europe/Minsk'
-  );
+  // new CronJob(
+  //   '*/1 * * * *',
+  //   videoSubscriptionsJobBY,
+  //   async function() {
+  //     console.log('==========================================');
+  //     console.log('====  EXIT JOB: VIDEO Subscriptions BY  ===');
+  //     console.log('==========================================');
+  //   },
+  //   true,
+  //   'Europe/Minsk'
+  // );
 
   new CronJob(
     '0 */12 * * *',
