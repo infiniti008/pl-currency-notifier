@@ -10,7 +10,6 @@ setInterval(() => {
 }, 1000);
 
 function runContentProcessing() {
-  console.log('-');
   const runContentProcess = spawn('node', ['./contentProcessing']);
 
   runContentProcess.stdout.on('data', (data) => {
