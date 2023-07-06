@@ -8,6 +8,7 @@ import { spawn } from 'node:child_process';
 
 async function masterRun() {
   telegramBotJob();
+  processingQJob();
 
   new CronJob(
     '*/1 * * * *',
@@ -339,6 +340,32 @@ async function telegramBotJob() {
       console.log(`********** ${time} **********`);
       console.log('******************************************');
     }
+  });
+}
+
+async function processingQJob() {
+  const time = new Date().toLocaleString();
+  console.log('==========================================');
+  console.log('==== START JOB: PROCESSING CONTENT FROM Q ====');
+  console.log(`========== ${time} ==========`);
+  console.log('==========================================');
+
+  const processingQProcess = spawn('node', ['./runContentProcessing.js']);
+
+  processingQProcess.stdout.on('data', (data) => {
+    console.log(`${data}`);
+  });
+
+  processingQProcess.stderr.on('data', (data) => {
+    console.error(`${data}`);
+  });
+
+  processingQProcess.on('close', (code) => {
+    console.log('******************************************');
+    console.log(`PROCESSING CONTENT FROM Q Process exited with code ${code}`);
+    console.log('***  EXIT JOB: PROCESSING CONTENT FROM Q  ****');
+    console.log(`********** ${time} **********`);
+    console.log('******************************************');
   });
 }
 

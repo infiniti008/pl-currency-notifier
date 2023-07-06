@@ -2,23 +2,27 @@ import { MongoClient, ObjectId } from 'mongodb';
 
 let client = null;
 
-async function connect() {
+async function connect(isSilent) {
   try {
     client = new MongoClient(process.env.baseUrl);
     await client.connect();
-    console.log('Connected to base');
+    if (!isSilent) {
+      console.log('Connected to base');
+    }
   } catch(error) {
     console.error(error);
   }
 }
 
-export async function closeConnection() {
+export async function closeConnection(isSilent) {
   await client.close();
-  console.log('Connection to base closed');
+  if (!isSilent) {
+    console.log('Connection to base closed');
+  }
 }
 
-export async function initBase() {
-  await connect();
+export async function initBase(isSilent) {
+  await connect(isSilent);
 }
 
 export async function getKeys(country) {
@@ -146,11 +150,31 @@ export async function getAllSubscriptionsWithTimeByCountry(time, country, subscr
   }
 }
 
-export async function addDataToRender(record) {
+export async function addContentToQ(record) {
   try {
-    const dataCollection = await client.db('config_app').collection('data-to-render');
+    const dataCollection = await client.db('currency_app').collection('processing-q');
     const result = await dataCollection.insertOne(record);
+    return result;
+  } catch(err) {
+    console.log(err);
+  }
+}
 
+export async function getContentFromQ() {
+  try {
+    const dataCollection = await client.db('currency_app').collection('processing-q');
+    const content = await dataCollection.findOne();
+    return content;
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export async function deleteContentFromQ(id) {
+  try {
+    const dataCollection = await client.db('currency_app').collection('processing-q');
+    const result = await dataCollection.deleteOne({ _id: new ObjectId(id) });
+    return result;
   } catch(err) {
     console.log(err);
   }

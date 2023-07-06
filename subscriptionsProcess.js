@@ -4,7 +4,6 @@ dotenv.config({
 });
 
 import { Command } from'commander';
-import fs from 'fs';
 
 const program = new Command();
 
@@ -24,12 +23,8 @@ import {
   getAllSubscriptionsWithTimeByCountry,
   getLastCurrencies,
   getDiffCurrencies,
-  addDataToRender
+  addContentToQ
 } from './base.js';
-import generators from "./renders.js";
-import { sendPhoto } from './sendPhoto.js';
-import { sendVideo } from './sendVideo.js';
-import { sendStories } from './sendStories.js';
 
 async function userSubscriptionsProcess() {
   try {
@@ -95,24 +90,18 @@ async function userSubscriptionsProcess() {
     // -- Prepare Content to Render
     const cotentToSubscriptions = allSubscriptionsWithTimeByCountry.map(subscriptionData => {
       const content = prepareContentToRender(subscriptionData, now, time);
-
-      if (subscriptionData.platform !== 'subscriptions-video') {
-        // -- Save content to base
-        // addDataToRender({ content, subscriptionData });
-      }
       return content;
     });
 
     // -- Proccess Images
     console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
-    const processImagesArray = [];
-    cotentToSubscriptions.forEach(content => {
-      if (content) {
-        processImagesArray.push(processImages(content, content.template));
-      }
+
+    const addToQArr = [];
+    cotentToSubscriptions.forEach((content) => {
+      addToQArr.push(addContentToQ(content));
     });
 
-    await Promise.all(processImagesArray);
+    await Promise.all(addToQArr);
 
     await end();
   } catch(err) {
@@ -298,63 +287,6 @@ function prepareContentToRender(subscription, now, time) {
   // return null;
 
   return connect;
-}
-
-function processImages(content) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      // -- Render Image
-      const { imagePath = null, image = null } = await generators.base64(content, content.template);
-      if (!imagePath && !image) {
-        reject(false);
-        return;
-      }
-
-      let imageBuffer = null;
-      if (image) {
-        imageBuffer = new Buffer.from(image, 'base64');
-      }
-      else if (imagePath) {
-        imageBuffer = fs.readFileSync(process.env.mediaFolderPath + imagePath);
-        content.imagePath = imagePath;
-      }
-
-      if (content.platform === 'subscriptions-users') {
-        // Send Image to Chat
-        await sendPhoto(imageBuffer, content.chatId);
-      }
-      else if (content.platform === 'subscriptions-telegram') {
-        // Send Image to Chanel
-        await sendPhoto(imageBuffer, content.chanel, content.tag);
-      }
-      else if (content.platform === 'subscriptions-telegram-promo') {
-        // Send Promo to Chanel
-        await sendPhoto(imageBuffer, content.chanel, 'https://ko-fi.com/currency_notifications_app');
-      }
-      // else if (content.platform === 'subscriptions-video') {
-      //   // Send Promo to Chanel
-      //   const { videoPath = null } = await generators.video(content);
-
-      //   if (videoPath) {
-      //     content.videoPath = videoPath;
-
-      //     const uploadVideoResult = await sendVideo(content);
-      //     console.log(uploadVideoResult)
-      //     // await addDataToRender({ content, uploadVideoResult });
-      //   }
-      // }
-      // else if (content.platform === 'subscriptions-stories') {
-      //   // Send photo to Stories
-      //   console.log('subscriptions-stories');
-      //   await sendStories(content);
-      // }
-      
-      resolve(true);
-    } catch(err) {
-      console.log(err);
-      reject(false);
-    }
-  });
 }
 
 userSubscriptionsProcess();
