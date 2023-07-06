@@ -98,7 +98,7 @@ async function userSubscriptionsProcess() {
 
       if (subscriptionData.platform !== 'subscriptions-video') {
         // -- Save content to base
-        addDataToRender({ content, subscriptionData });
+        // addDataToRender({ content, subscriptionData });
       }
       return content;
     });
@@ -331,23 +331,23 @@ function processImages(content) {
         // Send Promo to Chanel
         await sendPhoto(imageBuffer, content.chanel, 'https://ko-fi.com/currency_notifications_app');
       }
-      else if (content.platform === 'subscriptions-video') {
-        // Send Promo to Chanel
-        const { videoPath = null } = await generators.video(content);
+      // else if (content.platform === 'subscriptions-video') {
+      //   // Send Promo to Chanel
+      //   const { videoPath = null } = await generators.video(content);
 
-        if (videoPath) {
-          content.videoPath = videoPath;
+      //   if (videoPath) {
+      //     content.videoPath = videoPath;
 
-          const uploadVideoResult = await sendVideo(content);
-          console.log(uploadVideoResult)
-          await addDataToRender({ content, uploadVideoResult });
-        }
-      }
-      else if (content.platform === 'subscriptions-stories') {
-        // Send photo to Stories
-        console.log('subscriptions-stories');
-        await sendStories(content);
-      }
+      //     const uploadVideoResult = await sendVideo(content);
+      //     console.log(uploadVideoResult)
+      //     // await addDataToRender({ content, uploadVideoResult });
+      //   }
+      // }
+      // else if (content.platform === 'subscriptions-stories') {
+      //   // Send photo to Stories
+      //   console.log('subscriptions-stories');
+      //   await sendStories(content);
+      // }
       
       resolve(true);
     } catch(err) {
