@@ -313,9 +313,6 @@ function generateName(content) {
 
     if (content.chanel === 'youtube') {
       videoTitle = videoTitle + ' #shorts ' + content.tags;
-      content.cotentToSubscriptions.forEach(item => {
-        videoTitle = videoTitle + ' ' + item.tags;
-      });
     }
 
     return videoTitle;
