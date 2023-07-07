@@ -10,10 +10,10 @@ export function sendVideo(content) {
   
   return new Promise(async(resolve, reject) => {
     try {
-      const response = await axios.post(videoRenderHost + '/api/send-video', {
+      const response = await axios.post(videoRenderHost + '/api/send-video/youtube', {
         data: {
           content,
-          isRemoveMedia: true
+          isRemoveMedia: false
         },
         headers: {
           'Content-Type': 'application/json'

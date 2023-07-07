@@ -44,11 +44,17 @@ async function userSubscriptionsProcess() {
     }
 
     // -- Get Subscriptions
-    const allSubscriptionsWithTimeByCountry = await getAllSubscriptionsWithTimeByCountry(time, options.country, options.collection, options.id);
+    
+    let allSubscriptionsWithTimeByCountry = await getAllSubscriptionsWithTimeByCountry(time, options.country, options.collection, options.id);
 
     if (!allSubscriptionsWithTimeByCountry) {
       await end();
       return;
+    }
+
+    const generalVideoSubscription = allSubscriptionsWithTimeByCountry.find(item => item.platform === 'subscriptions-video-all');
+    if (generalVideoSubscription) {
+      allSubscriptionsWithTimeByCountry = allSubscriptionsWithTimeByCountry.filter(item => item.platform !== 'subscriptions-video-all')
     }
 
     // -- Get Last Rates
@@ -96,12 +102,24 @@ async function userSubscriptionsProcess() {
     // -- Proccess Images
     console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
 
-    const addToQArr = [];
-    cotentToSubscriptions.forEach((content) => {
-      addToQArr.push(addContentToQ(content));
-    });
+    if (options.collection == 'subscriptions-video' && generalVideoSubscription) {
+      const content = generalVideoSubscription;
+      content.cotentToSubscriptions = cotentToSubscriptions;
 
-    await Promise.all(addToQArr);
+      content.videoTitle = generateName(content);
+      content.videoDescription = generateDescription(content);
+
+      delete content._id;
+      await addContentToQ(content);
+    }
+    else {
+      const addToQArr = [];
+      cotentToSubscriptions.forEach((content) => {
+        addToQArr.push(addContentToQ(content));
+      });
+
+      await Promise.all(addToQArr);
+    }
 
     await end();
   } catch(err) {
@@ -287,6 +305,40 @@ function prepareContentToRender(subscription, now, time) {
   // return null;
 
   return connect;
+}
+
+function generateName(content) {
+  try {
+    let videoTitle = content.name + content.cotentToSubscriptions[0].dateTime;
+
+    if (content.chanel === 'youtube') {
+      videoTitle = videoTitle + ' #shorts ' + content.tags;
+      content.cotentToSubscriptions.forEach(item => {
+        videoTitle = videoTitle + ' ' + item.tags;
+      });
+    }
+
+    return videoTitle;
+  } catch (err) {
+    console.log(err);
+    return content.name || 'Name'
+  }
+} 
+
+function generateDescription(content) {
+  try {
+    let videoDescription = content.description + '\r\n';
+    videoDescription = videoDescription + `Last updates at ${content.cotentToSubscriptions[0].dateTime} for:`;
+    content.cotentToSubscriptions.forEach(content => {
+      const keyNames = content.records.map(record => `  - ${record.NAME} | ${record.CURRENCY}\r\n`);
+      videoDescription = videoDescription + '\r\n' + keyNames.join('');
+    });
+
+    return videoDescription;
+  } catch (err) {
+    console.log(err);
+    return content.description || 'Description';
+  }
 }
 
 userSubscriptionsProcess();

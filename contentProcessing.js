@@ -22,7 +22,13 @@ async function processing() {
   if (content) {
     console.time('CONTENT_EXECUTION');
     console.log(`== RUN: CONTENT PROCESSING | ${content.platform} ==`);
-    const processContentResult = await processImages(content);
+
+    let processContentResult = null;
+    if (content.platform === 'subscriptions-video-all') {
+      processContentResult = await processVideo(content);
+    } else {
+      processContentResult = await processImages(content);
+    }
 
     if (processContentResult) {
       await deleteContentFromQ(content._id.toString());
@@ -38,7 +44,6 @@ async function processing() {
 }
 
 processing();
-
 
 async function processImages(content) {
   return new Promise(async(resolve, reject) => {
@@ -64,22 +69,49 @@ async function processImages(content) {
         // Send Promo to Chanel
         await sendPhoto(getBufferedImage(image, imagePath), content.chanel, 'https://ko-fi.com/currency_notifications_app');
       }
-      // else if (content.platform === 'subscriptions-video') {
-      //   // Send Promo to Chanel
-      //   const { videoPath = null } = await generators.video(content);
-
-      //   if (videoPath) {
-      //     content.videoPath = videoPath;
-
-      //     const uploadVideoResult = await sendVideo(content);
-      //     console.log(uploadVideoResult)
-      //   }
-      // }
       else if (content.platform === 'subscriptions-stories') {
         // Send photo to Stories
         await sendStories(content);
       }
       
+      resolve(true);
+    } catch(err) {
+      console.log(err);
+      reject(false);
+    }
+  });
+}
+
+async function processVideo(content) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      // -- Render Image
+      for(let i = 0; i < content.cotentToSubscriptions.length; i++) {
+        const contentItem = content.cotentToSubscriptions[i];
+        const { imagePath = null, image = null } = await generators.base64(contentItem, contentItem.template);
+        if (!imagePath && !image) {
+          reject(false);
+          return;
+        }
+
+        contentItem.imagePath = imagePath;
+      }
+
+      const date = new Date().toLocaleDateString('ru-RU');
+
+      content.fileName = date + '-' + content.time + '-' + content._id.toString()
+
+      if (content.platform === 'subscriptions-video-all') {
+        // Send Promo to Chanel
+        const { videoPath = null } = await generators.video(content);
+
+        if (videoPath) {
+          content.videoPath = videoPath;
+
+          const uploadVideoResult = await sendVideo(content);
+        }
+      }
+       
       resolve(true);
     } catch(err) {
       console.log(err);

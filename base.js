@@ -1,6 +1,12 @@
+import * as dotenv from 'dotenv';
+dotenv.config({
+  path: './.env'
+});
+
 import { MongoClient, ObjectId } from 'mongodb';
 
 let client = null;
+const isDev = process.env.environment === 'dev';
 
 async function connect(isSilent) {
   try {
@@ -152,7 +158,8 @@ export async function getAllSubscriptionsWithTimeByCountry(time, country, subscr
 
 export async function addContentToQ(record) {
   try {
-    const dataCollection = await client.db('currency_app').collection('processing-q');
+    const collectionName = isDev ? 'test-processing-q' : 'processing-q';
+    const dataCollection = await client.db('currency_app').collection(collectionName);
     const result = await dataCollection.insertOne(record);
     return result;
   } catch(err) {
@@ -162,7 +169,8 @@ export async function addContentToQ(record) {
 
 export async function getContentFromQ() {
   try {
-    const dataCollection = await client.db('currency_app').collection('processing-q');
+    const collectionName = isDev ? 'test-processing-q' : 'processing-q';
+    const dataCollection = await client.db('currency_app').collection(collectionName);
     const content = await dataCollection.findOne();
     return content;
   } catch(err) {
@@ -172,7 +180,8 @@ export async function getContentFromQ() {
 
 export async function deleteContentFromQ(id) {
   try {
-    const dataCollection = await client.db('currency_app').collection('processing-q');
+    const collectionName = isDev ? 'test-processing-q' : 'processing-q';
+    const dataCollection = await client.db('currency_app').collection(collectionName);
     const result = await dataCollection.deleteOne({ _id: new ObjectId(id) });
     return result;
   } catch(err) {
