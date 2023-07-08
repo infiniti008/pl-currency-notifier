@@ -188,3 +188,14 @@ export async function deleteContentFromQ(id) {
     console.log(err);
   }
 }
+
+export async function checkContentInQ() {
+  try {
+    const collectionName = isDev ? 'test-processing-q' : 'processing-q';
+    const qCount = await client.db('currency_app').collection(collectionName).count();
+
+    return qCount;
+  } catch(err) {
+    console.log(err);
+  }
+}

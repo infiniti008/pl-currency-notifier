@@ -1,13 +1,26 @@
 import { spawn } from 'node:child_process';
+import {
+  initBase,
+  closeConnection,
+  checkContentInQ
+} from './base.js';
 
 let isInProgress = false;
 
-setInterval(() => {
-  if (!isInProgress) {
-    isInProgress = true;
-    runContentProcessing();
-  }
-}, 1000);
+async function runner() {
+  await initBase();
+
+  setInterval(async () => {
+    const countInQ = await checkContentInQ();
+    if (!isInProgress && countInQ > 0) {
+      console.log('== Items In Q =', countInQ);
+      isInProgress = true;
+      runContentProcessing();
+    }
+  }, 1000);
+
+  // await closeConnection();
+}
 
 function runContentProcessing() {
   const runContentProcess = spawn('node', ['./contentProcessing']);
@@ -24,3 +37,5 @@ function runContentProcessing() {
     isInProgress = false;
   });
 }
+
+runner();
