@@ -65,10 +65,10 @@ async function masterRun() {
 
 async function userSubscriptionsJobPL() {
   const time = new Date().toLocaleString();
-  console.log('==========================================');
-  console.log('==== START JOB: User Subscriptions PL ====');
-  console.log(`========== ${time} ==========`);
-  console.log('==========================================');
+  // console.log('==========================================');
+  // console.log('==== START JOB: User Subscriptions PL ====');
+  // console.log(`========== ${time} ==========`);
+  // console.log('==========================================');
 
   const userSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', '--collection', 'subscriptions-users']);
 
@@ -81,22 +81,22 @@ async function userSubscriptionsJobPL() {
   });
 
   userSubscriptionsProcessPL.on('close', (code) => {
-    console.log(`user Subscriptions Process exited with code ${code}`);
+    // console.log(`user Subscriptions Process exited with code ${code}`);
     if (code === 0) {
-      console.log('******************************************');
-      console.log('***  EXIT JOB: User Subscriptions PL  ****');
-      console.log(`********** ${time} **********`);
-      console.log('******************************************');
+      // console.log('******************************************');
+      // console.log('***  EXIT JOB: User Subscriptions PL  ****');
+      // console.log(`********** ${time} **********`);
+      // console.log('******************************************');
     }
   });
 }
 
 async function userSubscriptionsJobBY() {
   const time = new Date().toLocaleString();
-  console.log('==========================================');
-  console.log('==== START JOB: User Subscriptions BY ====');
-  console.log(`========== ${time} ==========`);
-  console.log('==========================================');
+  // console.log('==========================================');
+  // console.log('==== START JOB: User Subscriptions BY ====');
+  // console.log(`========== ${time} ==========`);
+  // console.log('==========================================');
 
   const userSubscriptionsJobBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-users']);
 
@@ -109,22 +109,22 @@ async function userSubscriptionsJobBY() {
   });
 
   userSubscriptionsJobBY.on('close', (code) => {
-    console.log(`user Subscriptions Process exited with code ${code}`);
+    // console.log(`user Subscriptions Process exited with code ${code}`);
     if (code === 0) {
-      console.log('******************************************');
-      console.log('***  EXIT JOB: User Subscriptions BY  ****');
-      console.log(`********** ${time} **********`);
-      console.log('******************************************');
+      // console.log('******************************************');
+      // console.log('***  EXIT JOB: User Subscriptions BY  ****');
+      // console.log(`********** ${time} **********`);
+      // console.log('******************************************');
     }
   });
 }
 
 async function telegramSubscriptionsJobPL() {
   const time = new Date().toLocaleString();
-  console.log('==========================================');
-  console.log('==== START JOB: Telegram Subscriptions PL ====');
-  console.log(`========== ${time} ==========`);
-  console.log('==========================================');
+  // console.log('==========================================');
+  // console.log('==== START JOB: Telegram Subscriptions PL ====');
+  // console.log(`========== ${time} ==========`);
+  // console.log('==========================================');
 
   const telegramSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', '--collection', 'subscriptions-telegram']);
 
@@ -137,22 +137,22 @@ async function telegramSubscriptionsJobPL() {
   });
 
   telegramSubscriptionsProcessPL.on('close', (code) => {
-    console.log(`user Subscriptions Process exited with code ${code}`);
+    // console.log(`user Subscriptions Process exited with code ${code}`);
     if (code === 0) {
-      console.log('******************************************');
-      console.log('***  EXIT JOB: Telegram Subscriptions PL  ****');
-      console.log(`********** ${time} **********`);
-      console.log('******************************************');
+      // console.log('******************************************');
+      // console.log('***  EXIT JOB: Telegram Subscriptions PL  ****');
+      // console.log(`********** ${time} **********`);
+      // console.log('******************************************');
     }
   });
 }
 
 async function telegramSubscriptionsJobBY() {
   const time = new Date().toLocaleString();
-  console.log('==========================================');
-  console.log('==== START JOB: Telegram Subscriptions BY ====');
-  console.log(`========== ${time} ==========`);
-  console.log('==========================================');
+  // console.log('==========================================');
+  // console.log('==== START JOB: Telegram Subscriptions BY ====');
+  // console.log(`========== ${time} ==========`);
+  // console.log('==========================================');
 
   const telegramSubscriptionsProcessBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-telegram']);
 
@@ -165,22 +165,22 @@ async function telegramSubscriptionsJobBY() {
   });
 
   telegramSubscriptionsProcessBY.on('close', (code) => {
-    console.log(`user Subscriptions Process exited with code ${code}`);
+    // console.log(`user Subscriptions Process exited with code ${code}`);
     if (code === 0) {
-      console.log('******************************************');
-      console.log('***  EXIT JOB: Telegram Subscriptions BY  ****');
-      console.log(`********** ${time} **********`);
-      console.log('******************************************');
+      // console.log('******************************************');
+      // console.log('***  EXIT JOB: Telegram Subscriptions BY  ****');
+      // console.log(`********** ${time} **********`);
+      // console.log('******************************************');
     }
   });
 }
 
 async function videoSubscriptionsJobPL() {
   const time = new Date().toLocaleString();
-  console.log('==========================================');
-  console.log('==== START JOB: VIDEO Subscriptions PL ====');
-  console.log(`========== ${time} ==========`);
-  console.log('==========================================');
+  // console.log('==========================================');
+  // console.log('==== START JOB: VIDEO Subscriptions PL ====');
+  // console.log(`========== ${time} ==========`);
+  // console.log('==========================================');
 
   const videoSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', '--collection', 'subscriptions-video']);
 
@@ -193,22 +193,22 @@ async function videoSubscriptionsJobPL() {
   });
 
   videoSubscriptionsProcessPL.on('close', (code) => {
-    console.log(`user Subscriptions Process exited with code ${code}`);
+    // console.log(`user Subscriptions Process exited with code ${code}`);
     if (code === 0) {
-      console.log('******************************************');
-      console.log('***  EXIT JOB: Telegram Subscriptions PL  ****');
-      console.log(`********** ${time} **********`);
-      console.log('******************************************');
+      // console.log('******************************************');
+      // console.log('***  EXIT JOB: Telegram Subscriptions PL  ****');
+      // console.log(`********** ${time} **********`);
+      // console.log('******************************************');
     }
   });
 }
 
 async function videoSubscriptionsJobBY() {
   const time = new Date().toLocaleString();
-  console.log('==========================================');
-  console.log('==== START JOB: VIDEO Subscriptions BY ====');
-  console.log(`========== ${time} ==========`);
-  console.log('==========================================');
+  // console.log('==========================================');
+  // console.log('==== START JOB: VIDEO Subscriptions BY ====');
+  // console.log(`========== ${time} ==========`);
+  // console.log('==========================================');
 
   const videoSubscriptionsProcessBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-video']);
 
@@ -221,22 +221,22 @@ async function videoSubscriptionsJobBY() {
   });
 
   videoSubscriptionsProcessBY.on('close', (code) => {
-    console.log(`user Subscriptions Process exited with code ${code}`);
+    // console.log(`user Subscriptions Process exited with code ${code}`);
     if (code === 0) {
-      console.log('******************************************');
-      console.log('***  EXIT JOB: VIDEO Subscriptions BY  ****');
-      console.log(`********** ${time} **********`);
-      console.log('******************************************');
+      // console.log('******************************************');
+      // console.log('***  EXIT JOB: VIDEO Subscriptions BY  ****');
+      // console.log(`********** ${time} **********`);
+      // console.log('******************************************');
     }
   });
 }
 
 async function storiesSubscriptionsJobPL() {
   const time = new Date().toLocaleString();
-  console.log('==========================================');
-  console.log('==== START JOB: STORIES Subscriptions PL ====');
-  console.log(`========== ${time} ==========`);
-  console.log('==========================================');
+  // console.log('==========================================');
+  // console.log('==== START JOB: STORIES Subscriptions PL ====');
+  // console.log(`========== ${time} ==========`);
+  // console.log('==========================================');
 
   const storiesSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', '--collection', 'subscriptions-stories']);
 
@@ -249,22 +249,22 @@ async function storiesSubscriptionsJobPL() {
   });
 
   storiesSubscriptionsProcessPL.on('close', (code) => {
-    console.log(`Stories Subscriptions Process exited with code ${code}`);
+    // console.log(`Stories Subscriptions Process exited with code ${code}`);
     if (code === 0) {
-      console.log('******************************************');
-      console.log('***  EXIT JOB: STORIES Subscriptions PL  ****');
-      console.log(`********** ${time} **********`);
-      console.log('******************************************');
+      // console.log('******************************************');
+      // console.log('***  EXIT JOB: STORIES Subscriptions PL  ****');
+      // console.log(`********** ${time} **********`);
+      // console.log('******************************************');
     }
   });
 }
 
 async function storiesSubscriptionsJobBY() {
   const time = new Date().toLocaleString();
-  console.log('==========================================');
-  console.log('==== START JOB: STORIES Subscriptions BY ====');
-  console.log(`========== ${time} ==========`);
-  console.log('==========================================');
+  // console.log('==========================================');
+  // console.log('==== START JOB: STORIES Subscriptions BY ====');
+  // console.log(`========== ${time} ==========`);
+  // console.log('==========================================');
 
   const storiesSubscriptionsProcessBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-stories']);
 
@@ -277,12 +277,12 @@ async function storiesSubscriptionsJobBY() {
   });
 
   storiesSubscriptionsProcessBY.on('close', (code) => {
-    console.log(`Stories Subscriptions Process exited with code ${code}`);
+    // console.log(`Stories Subscriptions Process exited with code ${code}`);
     if (code === 0) {
-      console.log('******************************************');
-      console.log('***  EXIT JOB: STORIES Subscriptions BY  ****');
-      console.log(`********** ${time} **********`);
-      console.log('******************************************');
+      // console.log('******************************************');
+      // console.log('***  EXIT JOB: STORIES Subscriptions BY  ****');
+      // console.log(`********** ${time} **********`);
+      // console.log('******************************************');
     }
   });
 }

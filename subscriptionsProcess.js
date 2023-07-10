@@ -35,7 +35,7 @@ async function userSubscriptionsProcess() {
       process.env.TZ = 'Europe/Warsaw';
     }
 
-    await initBase();
+    await initBase(true);
     // -- Get Time
     const now = new Date();
     let time = now.toLocaleTimeString(['ru-RU']).split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);
@@ -129,7 +129,7 @@ async function userSubscriptionsProcess() {
 }
 
 async function end() {
-  await closeConnection();
+  await closeConnection(true);
 }
 
 function getTimeToGetDiff(time, intervals, timeToGetDiff) {
