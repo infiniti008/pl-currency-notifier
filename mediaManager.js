@@ -5,7 +5,8 @@ dotenv.config({
 
 import fs from 'fs';
 
-const mediaFolderPath = process.env.mediaFolderPath;
+const env = process.env.environment || 'prod';
+const mediaFolderPath = process.env['mediaFolderPath_' + env];
 
 const imagesFolder = fs.readdirSync(mediaFolderPath + '/images');
 const imagesToRemove = getItemsToDelete(imagesFolder);

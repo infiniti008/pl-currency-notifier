@@ -5,6 +5,9 @@ dotenv.config({
 
 import fs from 'fs';
 
+const env = process.env.environment || 'prod';
+const mediaFolderPath = process.env['mediaFolderPath_' + env];
+
 import { getContentFromQ, initBase, closeConnection, deleteContentFromQ } from './base.js';
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
@@ -108,15 +111,20 @@ async function processVideo(content) {
         if (videoPath) {
           content.videoPath = videoPath;
 
-          const [ 
-            uploadVideoResult,
-            uploadReelsResult 
-          ] = await Promise.all([
-            sendVideo(content),
-            sendReelsToInstagram(content)
-          ]);
+          try {
+            const [ 
+              uploadVideoResult,
+              uploadReelsResult 
+            ] = await Promise.all([
+              sendVideo(content),
+              sendReelsToInstagram(content)
+            ]);
 
-          // console.log('uploadReelsResult', uploadReelsResult);
+            console.log('uploadReelsResult', uploadReelsResult);
+            console.log('uploadVideoResult', uploadVideoResult);
+          } catch(err) {
+            console.log(err?.message);
+          }
         }
       }
        
@@ -134,7 +142,7 @@ function getBufferedImage(image, imagePath) {
     imageBuffer = new Buffer.from(image, 'base64');
   }
   else if (imagePath) {
-    imageBuffer = fs.readFileSync(process.env.mediaFolderPath + imagePath);
+    imageBuffer = fs.readFileSync(mediaFolderPath + imagePath);
   }
 
   return imageBuffer;
