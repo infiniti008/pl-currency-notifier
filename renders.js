@@ -7,9 +7,11 @@ import axios from 'axios';
 import fs from 'fs';
 import Handlebars from 'handlebars';
 
+const environment = process.env.environment || 'prod';
+const imageRenderHost = process.env['imageRenderHost_' + environment];
+const videoRenderHost = process.env['ideoRenderHost_' + environment];
+
 const generators = {};
-const imageRenderHost = process.env.imageRenderHost;
-const videoRenderHost = process.env.videoRenderHost;
 
 generators.base64 = async function (content, templateName, saveToFile, fileName) {
   return new Promise(async(resolve, reject) => {
@@ -33,8 +35,8 @@ generators.base64 = async function (content, templateName, saveToFile, fileName)
       }
       resolve(response.data);
     } catch(e) {
-      console.log(e);
-      reject(null);
+      console.log(e?.message);
+      reject({});
     }
   });
 }
@@ -94,7 +96,7 @@ generators.video = async function (content) {
       resolve(response.data);
     } catch (error) {
       console.error(error.message);
-      reject(null);
+      reject({});
     }
   });
 }

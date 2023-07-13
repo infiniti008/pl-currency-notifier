@@ -4,7 +4,10 @@ dotenv.config({
 });
 
 import axios from 'axios';
-const videoRenderHost = process.env.videoRenderHost;
+
+const environment = process.env.environment || 'prod';
+const imageRenderHost = process.env['imageRenderHost_' + environment];
+const videoRenderHost = process.env['ideoRenderHost_' + environment];
 
 export function sendVideo(content) {
   
@@ -22,8 +25,29 @@ export function sendVideo(content) {
 
       resolve(response.data);
     } catch (error) {
-      console.error(error.message);
-      reject(null);
+      console.error(error?.message);
+      reject({});
+    }
+  });
+}
+
+export function sendReelsToInstagram(content) {
+  
+  return new Promise(async(resolve, reject) => {
+    try {
+      const response = await axios.post(imageRenderHost + '/api/send-reels', {
+        data: {
+          content
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      resolve(response.data);
+    } catch (error) {
+      console.error(error?.message);
+      reject({});
     }
   });
 }

@@ -8,7 +8,7 @@ import fs from 'fs';
 import { getContentFromQ, initBase, closeConnection, deleteContentFromQ } from './base.js';
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
-import { sendVideo } from './sendVideo.js';
+import { sendVideo, sendReelsToInstagram } from './sendVideo.js';
 import { sendStories } from './sendStories.js';
 
 async function processing() {
@@ -21,7 +21,8 @@ async function processing() {
   // Process Content
   if (content) {
     console.time('CONTENT_EXECUTION');
-    console.log(`== RUN: CONTENT PROCESSING | ${content.platform} ==`);
+    console.log(`== RUN: CONTENT PROCESSING ==`);
+    console.log(`== [ ${content.time} ] [ ${content.name} ] [ ${content.platform} ] ==`);
 
     let processContentResult = null;
     if (content.platform === 'subscriptions-video-all') {
@@ -30,9 +31,9 @@ async function processing() {
       processContentResult = await processImages(content);
     }
 
-    if (processContentResult) {
+    // if (processContentResult) {
       await deleteContentFromQ(content._id.toString());
-    }
+    // }
     console.timeEnd('CONTENT_EXECUTION');
     console.log(`== END: CONTENT PROCESSING | ${content.platform} ==`);
   }
@@ -102,19 +103,26 @@ async function processVideo(content) {
       content.fileName = date + '-' + content.time + '-' + content._id.toString()
 
       if (content.platform === 'subscriptions-video-all') {
-        // Send Promo to Chanel
         const { videoPath = null } = await generators.video(content);
 
         if (videoPath) {
           content.videoPath = videoPath;
 
-          const uploadVideoResult = await sendVideo(content);
+          const [ 
+            uploadVideoResult,
+            uploadReelsResult 
+          ] = await Promise.all([
+            sendVideo(content),
+            sendReelsToInstagram(content)
+          ]);
+
+          // console.log('uploadReelsResult', uploadReelsResult);
         }
       }
        
       resolve(true);
     } catch(err) {
-      console.log(err);
+      console.log(err?.message);
       reject(false);
     }
   });

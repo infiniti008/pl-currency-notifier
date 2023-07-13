@@ -4,7 +4,9 @@ dotenv.config({
 });
 
 import axios from 'axios';
-const imageRenderHost = process.env.imageRenderHost;
+
+const environment = process.env.environment || 'prod';
+const imageRenderHost = process.env['imageRenderHost_' + environment];
 
 export function sendStories(content) {
   return new Promise(async(resolve, reject) => {
