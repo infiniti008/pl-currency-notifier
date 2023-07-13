@@ -7,7 +7,7 @@ import axios from 'axios';
 
 const environment = process.env.environment || 'prod';
 const imageRenderHost = process.env['imageRenderHost_' + environment];
-const videoRenderHost = process.env['ideoRenderHost_' + environment];
+const videoRenderHost = process.env['videoRenderHost_' + environment];
 
 export function sendVideo(content) {
   
