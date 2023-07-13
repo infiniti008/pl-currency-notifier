@@ -9,7 +9,7 @@ import Handlebars from 'handlebars';
 
 const environment = process.env.environment || 'prod';
 const imageRenderHost = process.env['imageRenderHost_' + environment];
-const videoRenderHost = process.env['ideoRenderHost_' + environment];
+const videoRenderHost = process.env['videoRenderHost_' + environment];
 
 const generators = {};
 
