@@ -28,6 +28,7 @@ async function masterRun() {
   new CronJob(
     '*/1 * * * *',
     async function() {
+      console.log(`==== RUN JOB: Chanel Subscriptions  [ ${new Date().toLocaleTimeString()} ] ====`);
       telegramSubscriptionsJobPL();
       telegramSubscriptionsJobBY();
 
