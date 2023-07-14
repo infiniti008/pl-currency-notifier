@@ -23,9 +23,9 @@ async function processing() {
 
   // Process Content
   if (content) {
-    console.time('CONTENT_EXECUTION');
+    console.time('   CONTENT_EXECUTION');
     console.log(`== RUN: CONTENT PROCESSING ==`);
-    console.log(`== [ ${content.time} ] [ ${content.name} ] [ ${content.platform} ] ==`);
+    console.log(`   [ ${content.time} ] [ ${content.name} ] [ ${content.platform} ] ==`);
 
     let processContentResult = null;
     if (content.platform === 'subscriptions-video-all') {
@@ -37,7 +37,7 @@ async function processing() {
     // if (processContentResult) {
       await deleteContentFromQ(content._id.toString());
     // }
-    console.timeEnd('CONTENT_EXECUTION');
+    console.timeEnd('   CONTENT_EXECUTION');
     console.log(`== END: CONTENT PROCESSING | ${content.platform} ==`);
   }
 

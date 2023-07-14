@@ -3,6 +3,8 @@ dotenv.config({
   path: './.env'
 });
 
+const silenceMode = process.env.silenceMode === 'true';
+
 import { Command } from'commander';
 
 const program = new Command();
@@ -100,7 +102,9 @@ async function userSubscriptionsProcess() {
     });
 
     // -- Proccess Images
-    console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
+    if (!silenceMode) {
+      console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
+    }
 
     if (options.collection == 'subscriptions-video' && generalVideoSubscription) {
       const content = generalVideoSubscription;
