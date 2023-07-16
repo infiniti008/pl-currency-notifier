@@ -131,7 +131,8 @@ export async function getDiffCurrencies(country, keys, timestamp) {
 
 export async function getAllSubscriptionsWithTimeByCountry(time, country, subscriptionsCollection, subscriptionId) {
   try {
-    const subscriptions = await client.db('currency_app').collection(subscriptionsCollection);
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    const subscriptions = await client.db(baseName).collection(subscriptionsCollection);
 
     if (subscriptionId) {
       const subscriptionById = await subscriptions.findOne({ _id: new ObjectId(subscriptionId) })
@@ -158,8 +159,8 @@ export async function getAllSubscriptionsWithTimeByCountry(time, country, subscr
 
 export async function addContentToQ(record) {
   try {
-    const collectionName = isDev ? 'test-processing-q' : 'processing-q';
-    const dataCollection = await client.db('currency_app').collection(collectionName);
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    const dataCollection = await client.db(baseName).collection('processing-q');
     const result = await dataCollection.insertOne(record);
     return result;
   } catch(err) {
@@ -169,8 +170,8 @@ export async function addContentToQ(record) {
 
 export async function getContentFromQ() {
   try {
-    const collectionName = isDev ? 'test-processing-q' : 'processing-q';
-    const dataCollection = await client.db('currency_app').collection(collectionName);
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    const dataCollection = await client.db(baseName).collection('processing-q');
     const content = await dataCollection.findOne();
     return content;
   } catch(err) {
@@ -180,8 +181,8 @@ export async function getContentFromQ() {
 
 export async function deleteContentFromQ(id) {
   try {
-    const collectionName = isDev ? 'test-processing-q' : 'processing-q';
-    const dataCollection = await client.db('currency_app').collection(collectionName);
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    const dataCollection = await client.db(baseName).collection('processing-q');
     const result = await dataCollection.deleteOne({ _id: new ObjectId(id) });
     return result;
   } catch(err) {
@@ -191,8 +192,8 @@ export async function deleteContentFromQ(id) {
 
 export async function checkContentInQ() {
   try {
-    const collectionName = isDev ? 'test-processing-q' : 'processing-q';
-    const qCount = await client.db('currency_app').collection(collectionName).count();
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    const qCount = await client.db(baseName).collection('processing-q').count();
 
     return qCount;
   } catch(err) {

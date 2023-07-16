@@ -56,7 +56,7 @@ async function userSubscriptionsProcess() {
 
     let dayOfWeek = now.getDay() - 1;
     if (dayOfWeek === -1) {
-      dayOfWeek = 6
+      dayOfWeek = 6;
     }
 
     allSubscriptionsWithTimeByCountry = allSubscriptionsWithTimeByCountry.filter((sub) => {
