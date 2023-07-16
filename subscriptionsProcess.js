@@ -54,6 +54,34 @@ async function userSubscriptionsProcess() {
       return;
     }
 
+    let dayOfWeek = now.getDay() - 1;
+    if (dayOfWeek === -1) {
+      dayOfWeek = 6
+    }
+
+    allSubscriptionsWithTimeByCountry = allSubscriptionsWithTimeByCountry.filter((sub) => {
+      if (sub.weekAvailability) {
+        const weekAvailability = sub.weekAvailability?.split('');
+        const availabilityIndex = dayOfWeek;
+        const availabilityForToday = weekAvailability[availabilityIndex];
+
+        if (availabilityForToday === '*') {
+          return true;
+        }
+
+        return false;
+      }
+
+      return true;
+    });
+
+    if (allSubscriptionsWithTimeByCountry.length === 0) {
+      await end();
+      console.log('EMPTY SUBSCRIPTIONS LIST AFTER FILTERING');
+      return;
+      
+    }
+
     const generalVideoSubscription = allSubscriptionsWithTimeByCountry.find(item => item.platform === 'subscriptions-video-all');
     if (generalVideoSubscription) {
       allSubscriptionsWithTimeByCountry = allSubscriptionsWithTimeByCountry.filter(item => item.platform !== 'subscriptions-video-all')
