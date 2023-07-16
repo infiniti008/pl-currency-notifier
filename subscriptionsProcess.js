@@ -359,13 +359,21 @@ function generateName(content) {
 function generateDescription(content) {
   try {
     let videoDescription = content.description + '\r\n';
-    videoDescription = videoDescription + `Last updates at ${content.cotentToSubscriptions[0].dateTime} for:`;
+    
+    const allTags = content.cotentToSubscriptions.map(content => content?.tags).join(' ');
+    videoDescription = videoDescription.replace('{{TAGS}}', allTags);
+    videoDescription = videoDescription.replace('{{DATE}}', content.cotentToSubscriptions[0].dateTime);
+    
     content.cotentToSubscriptions.forEach(content => {
-      const keyNames = content.records.map(record => `  - ${record.NAME} | ${record.CURRENCY}\r\n`);
-      videoDescription = videoDescription + '\r\n' + keyNames.join('');
+      const keyNames = content.records.map(record => `- ${record.NAME} | ${record.CURRENCY} = ${record.LAST_VALUE} ${record.CURRENCY_BASE}`);
+
+      videoDescription = videoDescription + keyNames.join(`\r\n`) + '\r\n\r\n';
     });
 
-    return videoDescription;
+    videoDescription = videoDescription.replace(/\| Buy/g, '| Buy ');
+    videoDescription = videoDescription.replace(/\| AVG/g, '| AVG ');
+
+    return videoDescription.trim();
   } catch (err) {
     console.log(err);
     return content.description || 'Description';

@@ -10,7 +10,6 @@ const imageRenderHost = process.env['imageRenderHost_' + environment];
 const videoRenderHost = process.env['videoRenderHost_' + environment];
 
 export function sendVideo(content) {
-  
   return new Promise(async(resolve, reject) => {
     try {
       const response = await axios.post(videoRenderHost + '/api/send-video/youtube', {
@@ -32,9 +31,9 @@ export function sendVideo(content) {
 }
 
 export function sendReelsToInstagram(content) {
-  
   return new Promise(async(resolve, reject) => {
     try {
+      content.videoTitle = content?.videoTitle?.replace('#shorts', '#reels');
       const response = await axios.post(imageRenderHost + '/api/send-reels', {
         data: {
           content
