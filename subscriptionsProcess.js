@@ -343,10 +343,18 @@ function prepareContentToRender(subscription, now, time) {
 
 function generateName(content) {
   try {
-    let videoTitle = content.name + content.cotentToSubscriptions[0].dateTime;
+    const maxLength = 100;
+    let videoTitle = '';
+
+    if (false) {
+      videoTitle = content.name + content.cotentToSubscriptions[0].dateTime;
+    } 
+    else {
+      videoTitle = content.cotentToSubscriptions?.map(item => item.records?.[0]?.BANK).join('][');
+    }
 
     if (content.chanel === 'youtube') {
-      videoTitle = videoTitle + ' #shorts ' + content.tags;
+      videoTitle = `[${videoTitle}][${content.cotentToSubscriptions[0].dateTime.replace(', ', '-').slice(0, 16)}] #shorts`;
     }
 
     return videoTitle;
@@ -360,7 +368,7 @@ function generateDescription(content) {
   try {
     let videoDescription = content.description + '\r\n';
     
-    const allTags = content.cotentToSubscriptions.map(content => content?.tags).join(' ');
+    const allTags = content.cotentToSubscriptions.map(content => content?.tags).join(' ') + ' ' + content.tags;
     videoDescription = videoDescription.replace('{{TAGS}}', allTags);
     videoDescription = videoDescription.replace('{{DATE}}', content.cotentToSubscriptions[0].dateTime);
     
@@ -373,7 +381,9 @@ function generateDescription(content) {
     videoDescription = videoDescription.replace(/\| Buy/g, '| Buy ');
     videoDescription = videoDescription.replace(/\| AVG/g, '| AVG ');
 
-    return videoDescription.trim();
+    videoDescription = videoDescription.trim();
+
+    return videoDescription;
   } catch (err) {
     console.log(err);
     return content.description || 'Description';
