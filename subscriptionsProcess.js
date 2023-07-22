@@ -106,7 +106,7 @@ async function userSubscriptionsProcess() {
         item.now = time;
 
         // -- Get Values to Diff
-        const timeToGetDiff = getTimeToGetDiff(time, item.times, item.timeToGetDiff);
+        const timeToGetDiff = getTimeToGetDiff(time, item.times, item.timeToGetDiff, item.dayToGetDiff, );
         const targetTimeToDiff = now.valueOf() - timeToGetDiff;
         item.targetTimeToDiff = targetTimeToDiff;
         const diffCurrencies = await getDiffCurrencies(options.country, item.keys, targetTimeToDiff);
@@ -166,8 +166,27 @@ async function end() {
   await closeConnection(true);
 }
 
-function getTimeToGetDiff(time, intervals, timeToGetDiff) {
+function getTimeToGetDiff(time, intervals, timeToGetDiff, dayToGetDiff) {
   try {
+    if (dayToGetDiff) {
+      let diff = 1000 * 60;
+
+      const now = new Date();
+
+      const dayDate = now.getDate();
+      const dayDateToGetDiff = dayDate + dayToGetDiff;
+      let newDate = new Date().setDate(dayDateToGetDiff);
+      newDate = new Date(newDate).setHours(timeToGetDiff.split(':')[0]);
+      newDate = new Date(newDate).setMinutes(timeToGetDiff.split(':')[1]);
+      newDate = new Date(newDate).setSeconds(0);
+
+      newDate = new Date(newDate);
+      const diffMillis = now.valueOf() - newDate.valueOf();
+      diff = diffMillis;
+
+      return diff;
+    }
+
     const currentTimeIndex = intervals.indexOf(time);
     let previousTimeIndex = currentTimeIndex - 1;
     
