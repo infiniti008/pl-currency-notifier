@@ -23,27 +23,31 @@ async function processing() {
 
   // Process Content
   if (content) {
+    const renderSettings = content.renderSettings ?? {};
+    const { 
+      image_shouldRender = true,
+      video_shouldRender = true
+    } = renderSettings;
+
     let t = process.hrtime();
+
     console.log(`== RUN: CONTENT PROCESSING ==`);
     console.log(`== [ ${content.time} ] [ ${content.name} ] [ ${content.platform} ]`);
 
     let processContentResult = null;
-    if (content.platform === 'subscriptions-video-all') {
+    if (video_shouldRender && content.platform === 'subscriptions-video-all') {
       processContentResult = await processVideo(content);
-    } else {
+    } else if (image_shouldRender) {
       processContentResult = await processImages(content);
     }
 
-    // if (processContentResult) {
-      await deleteContentFromQ(content._id.toString());
-    // }
+    await deleteContentFromQ(content._id.toString());
 
     t = process.hrtime(t);
     console.log(`== EXECUTION TIME: [ ${t[0]} ]`);
     console.log(`== END: CONTENT PROCESSING | ${content.platform} ==`);
   }
 
-  // Close Base Connection
   await closeConnection(true);
 
   setTimeout(() => {}, 1000);
@@ -52,6 +56,12 @@ async function processing() {
 processing();
 
 async function processImages(content) {
+  const renderSettings = content.renderSettings ?? {};
+  const { 
+    image_shouldSend_telegram = true,
+    image_shouldSend_stories = true
+  } = renderSettings;
+
   return new Promise(async(resolve, reject) => {
     try {
       // -- Render Image
@@ -62,20 +72,20 @@ async function processImages(content) {
       }
 
       content.imagePath = imagePath;
-
-      if (content.platform === 'subscriptions-users') {
+      if (image_shouldSend_telegram && content.platform === 'subscriptions-users') {
         // Send Image to Chat
         await sendPhoto(getBufferedImage(image, imagePath), content.chatId);
       }
-      else if (content.platform === 'subscriptions-telegram') {
+      else if (image_shouldSend_telegram && content.platform === 'subscriptions-telegram') {
         // Send Image to Chanel
         await sendPhoto(getBufferedImage(image, imagePath), content.chanel, content.tag);
       }
-      else if (content.platform === 'subscriptions-telegram-promo') {
+      else if (image_shouldSend_telegram && content.platform === 'subscriptions-telegram-promo') {
         // Send Promo to Chanel
         await sendPhoto(getBufferedImage(image, imagePath), content.chanel, 'https://ko-fi.com/currency_notifications_app');
       }
-      else if (content.platform === 'subscriptions-stories') {
+
+      if (image_shouldSend_stories && content.platform === 'subscriptions-stories') {
         // Send photo to Stories
         await sendStories(content);
       }
@@ -89,6 +99,12 @@ async function processImages(content) {
 }
 
 async function processVideo(content) {
+  const renderSettings = content.renderSettings ?? {};
+  const { 
+    video_shouldSend_youtube = true,
+    video_shouldSend_instagram = true
+  } = renderSettings;
+
   return new Promise(async(resolve, reject) => {
     try {
       // -- Render Image
@@ -114,13 +130,23 @@ async function processVideo(content) {
           content.videoPath = videoPath;
 
           try {
+            const sendVidoArr = [];
+            if (video_shouldSend_youtube) {
+              sendVidoArr[0] = sendVideo(content);
+            } else {
+              sendVidoArr[0] = { status: false };
+            }
+
+            if (video_shouldSend_instagram) {
+              sendVidoArr[1] = sendReelsToInstagram(content);
+            } else {
+              sendVidoArr[1] = { status: false };
+            }
+            
             const [ 
               uploadVideoResult,
               uploadReelsResult 
-            ] = await Promise.all([
-              sendVideo(content),
-              sendReelsToInstagram(content)
-            ]);
+            ] = await Promise.all(sendVidoArr);
 
             console.log('uploadReelsResult', uploadReelsResult);
             console.log('uploadVideoResult', uploadVideoResult);

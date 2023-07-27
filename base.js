@@ -3,6 +3,7 @@ dotenv.config({
   path: './.env'
 });
 
+import fs from 'fs';
 import { MongoClient, ObjectId } from 'mongodb';
 
 let client = null;
@@ -196,6 +197,24 @@ export async function checkContentInQ() {
     const qCount = await client.db(baseName).collection('processing-q').count();
 
     return qCount;
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export async function getRenderSettings() {
+  if (isDev) {
+    try {
+      return JSON.parse(fs.readFileSync('./render_settings.json').toString());
+    } catch(err) {
+      console.log(err);
+    }
+  }
+  try {
+    const baseName = 'config_app';
+    const dataCollection = await client.db(baseName).collection('render_settings');
+    const content = await dataCollection.findOne();
+    return content;
   } catch(err) {
     console.log(err);
   }

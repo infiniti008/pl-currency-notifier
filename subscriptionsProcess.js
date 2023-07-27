@@ -25,7 +25,8 @@ import {
   getAllSubscriptionsWithTimeByCountry,
   getLastCurrencies,
   getDiffCurrencies,
-  addContentToQ
+  addContentToQ,
+  getRenderSettings
 } from './base.js';
 
 async function userSubscriptionsProcess() {
@@ -136,6 +137,8 @@ async function userSubscriptionsProcess() {
       console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
     }
 
+    const renderSettings = await getRenderSettings();
+
     if (options.collection == 'subscriptions-video' && generalVideoSubscription) {
       const content = generalVideoSubscription;
       content.cotentToSubscriptions = cotentToSubscriptions;
@@ -144,11 +147,13 @@ async function userSubscriptionsProcess() {
       content.videoDescription = generateDescription(content);
 
       delete content._id;
+      content.renderSettings = renderSettings;
       await addContentToQ(content);
     }
     else {
       const addToQArr = [];
       cotentToSubscriptions.forEach((content) => {
+        content.renderSettings = renderSettings;
         addToQArr.push(addContentToQ(content));
       });
 
