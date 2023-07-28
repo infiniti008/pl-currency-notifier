@@ -137,3 +137,4 @@ data.json
 
 **/*.hbs.json
 test.js
+render_settings.json

@@ -141,7 +141,8 @@ async function userSubscriptionsProcess() {
 
     if (options.collection == 'subscriptions-video' && generalVideoSubscription) {
       const content = generalVideoSubscription;
-      content.cotentToSubscriptions = cotentToSubscriptions;
+      const sortedCotentToSubscriptions = sortVideoSubscriptions(content, cotentToSubscriptions);
+      content.cotentToSubscriptions = sortedCotentToSubscriptions;
 
       content.videoTitle = generateName(content);
       content.videoDescription = generateDescription(content);
@@ -412,6 +413,31 @@ function generateDescription(content) {
     console.log(err);
     return content.description || 'Description';
   }
+}
+
+function sortVideoSubscriptions(content, cotentToSubscriptions) {
+  if (!content.sortingByTags) {
+    return cotentToSubscriptions;
+  }
+
+  const sortedCotentToSubscriptions = [];
+  content.sortingByTags.forEach(tagToSort => {
+    const subscription = cotentToSubscriptions.find(subscription => subscription.tags.includes(tagToSort));
+
+    if (subscription) {
+      sortedCotentToSubscriptions.push(subscription);
+    }
+  });
+
+  let missedItems = [];
+  if (sortedCotentToSubscriptions.length !== cotentToSubscriptions.length) {
+    missedItems = cotentToSubscriptions.filter(item => {
+      return !sortedCotentToSubscriptions.some(sortedItem => sortedItem.name === item.name);
+    });
+
+  }
+
+  return [...sortedCotentToSubscriptions, ...missedItems];
 }
 
 userSubscriptionsProcess();
