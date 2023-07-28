@@ -155,7 +155,11 @@ async function userSubscriptionsProcess() {
       const addToQArr = [];
       cotentToSubscriptions.forEach((content) => {
         content.renderSettings = renderSettings;
-        addToQArr.push(addContentToQ(content));
+        const hasAnyChanges = checkHasChanges(content);
+
+        if (!content.doNotPostIfNoChanges || content.doNotPostIfNoChanges && hasAnyChanges) {
+          addToQArr.push(addContentToQ(content));
+        }
       });
 
       await Promise.all(addToQArr);
@@ -309,7 +313,8 @@ function prepareContentToRender(subscription, now, time) {
     country: subscription.country,
     tag: '#' + subscription.name.replaceAll(' ', '_').replaceAll('|', '').replaceAll('-', ''),
     tags: subscription.tags,
-    description: subscription.description
+    description: subscription.description,
+    doNotPostIfNoChanges: subscription.doNotPostIfNoChanges
   };
 
   subscription.keys?.forEach(key => {
@@ -438,6 +443,20 @@ function sortVideoSubscriptions(content, cotentToSubscriptions) {
   }
 
   return [...sortedCotentToSubscriptions, ...missedItems];
+}
+
+function checkHasChanges(content) {
+  let hasChanges = false;
+
+  hasChanges = !content.records.every(record => {
+    try {
+      return parseFloat(record.DIFF) === 0;
+    } catch(err) {
+      return false;
+    }
+  });
+
+  return hasChanges;
 }
 
 userSubscriptionsProcess();
