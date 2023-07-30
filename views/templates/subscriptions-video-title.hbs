@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Video Title</title>
+    <link href="https://fonts.cdnfonts.com/css/lumberjack" rel="stylesheet">
+    <style>
+      html {
+        padding: 0;
+        margin: 0;
+        font-family: 'Lumberjack', sans-serif;
+      }
+
+      body {
+        width: 1080px;
+        height: 1920px;
+        padding: 0;
+        margin: 0;
+        background-repeat: no-repeat;
+        background-image: url('data:image/png;base64,{{ TITLE_ORIGINAL_IMAGE }}');
+      }
+
+      .date-container {
+        background-color: #FF6565;
+        color: #004AAD;
+        font-size: 86px;
+        width: 810px;
+        height: 135px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 52px;
+        transform: rotate(-90deg);
+        position: relative;
+        top: 892px;
+        left: 567px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="date-container">{{ TITLE_DATE }}</div>
+  </body>
+</html>

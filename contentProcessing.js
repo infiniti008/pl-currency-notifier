@@ -107,6 +107,8 @@ async function processVideo(content) {
 
   return new Promise(async(resolve, reject) => {
     try {
+      const date = new Date().toLocaleDateString('ru-RU');
+
       // -- Render Image
       for(let i = 0; i < content.cotentToSubscriptions.length; i++) {
         const contentItem = content.cotentToSubscriptions[i];
@@ -119,7 +121,34 @@ async function processVideo(content) {
         contentItem.imagePath = imagePath;
       }
 
-      const date = new Date().toLocaleDateString('ru-RU');
+      // Render Title Image
+      if (content.titleImageTemplate && content.titleImagePathVariable) {
+        try {
+          const titleImageTemplatePath = mediaFolderPath + renderSettings[content.titleImagePathVariable];
+          const titleImageTemplateBase64 = fs.readFileSync(titleImageTemplatePath).toString('base64');
+          const TITLE_ORIGINAL_IMAGE = titleImageTemplateBase64;
+
+          content.fileName = date + '-' + content.time + '-title';
+          content.TITLE_DATE = date + ' ' + content.time;
+
+          const { imagePath = null, image = null } = await generators.base64(
+            content,
+            content.titleImageTemplate,
+            false,
+            null,
+            [
+              {
+                rule: "{{ TITLE_ORIGINAL_IMAGE }}",
+                string: TITLE_ORIGINAL_IMAGE
+              }
+            ]
+          );
+
+          content.titleImagePath = imagePath;
+        } catch (err) {
+          console.log(err);
+        }
+      }
 
       content.fileName = date + '-' + content.time + '-' + content._id.toString()
 

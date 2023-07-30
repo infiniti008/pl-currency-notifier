@@ -46,8 +46,17 @@ async function userSubscriptionsProcess() {
       time = options.time;
     }
 
+    let renderSettings = {};
+
+    try {
+      renderSettings = await getRenderSettings();
+    } catch (err) {
+      if (!silenceMode) {
+        console.log(err);
+      }
+    }
+
     // -- Get Subscriptions
-    
     let allSubscriptionsWithTimeByCountry = await getAllSubscriptionsWithTimeByCountry(time, options.country, options.collection, options.id);
 
     if (!allSubscriptionsWithTimeByCountry) {
@@ -60,29 +69,30 @@ async function userSubscriptionsProcess() {
       dayOfWeek = 6;
     }
 
-    allSubscriptionsWithTimeByCountry = allSubscriptionsWithTimeByCountry.filter((sub) => {
-      if (sub.weekAvailability) {
-        const weekAvailability = sub.weekAvailability?.split('');
-        const availabilityIndex = dayOfWeek;
-        const availabilityForToday = weekAvailability[availabilityIndex];
+    if (!renderSettings.skipFilterByDay) {
+      allSubscriptionsWithTimeByCountry = allSubscriptionsWithTimeByCountry.filter((sub) => {
+        if (sub.weekAvailability) {
+          const weekAvailability = sub.weekAvailability?.split('');
+          const availabilityIndex = dayOfWeek;
+          const availabilityForToday = weekAvailability[availabilityIndex];
 
-        if (availabilityForToday === '*') {
-          return true;
+          if (availabilityForToday === '*') {
+            return true;
+          }
+
+          return false;
         }
 
-        return false;
-      }
+        return true;
+      });
 
-      return true;
-    });
-
-    if (allSubscriptionsWithTimeByCountry.length === 0) {
-      await end();
-      if (!silenceMode) {
-        console.log('EMPTY SUBSCRIPTIONS LIST AFTER FILTERING');
+      if (allSubscriptionsWithTimeByCountry.length === 0) {
+        await end();
+        if (!silenceMode) {
+          console.log('EMPTY SUBSCRIPTIONS LIST AFTER FILTERING');
+        }
+        return;
       }
-      return;
-      
     }
 
     const generalVideoSubscription = allSubscriptionsWithTimeByCountry.find(item => item.platform === 'subscriptions-video-all');
@@ -137,8 +147,6 @@ async function userSubscriptionsProcess() {
       console.log(`Subscriptions Count = ${cotentToSubscriptions.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
     }
 
-    const renderSettings = await getRenderSettings();
-
     if (options.collection == 'subscriptions-video' && generalVideoSubscription) {
       const content = generalVideoSubscription;
       const sortedCotentToSubscriptions = sortVideoSubscriptions(content, cotentToSubscriptions);
@@ -166,7 +174,7 @@ async function userSubscriptionsProcess() {
     }
 
     await end();
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     await end();
   }

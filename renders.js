@@ -13,10 +13,15 @@ const videoRenderHost = process.env['videoRenderHost_' + environment];
 
 const generators = {};
 
-generators.base64 = async function (content, templateName, saveToFile, fileName) {
+generators.base64 = async function (content, templateName, saveToFile, fileName, replace) {
   return new Promise(async(resolve, reject) => {
     try {
-      const html = await fs.readFileSync(`./views/templates/${templateName}.hbs`).toString();
+      let html = await fs.readFileSync(`./views/templates/${templateName}.hbs`).toString();
+      if (replace) {
+        replace.forEach(replaceItem => {
+          html = html.replace(replaceItem.rule, replaceItem.string);
+        });
+      }
       const response = await axios.post(imageRenderHost + '/api/render', {
         data: {
           html,
