@@ -128,7 +128,7 @@ async function processVideo(content) {
           const titleImageTemplateBase64 = fs.readFileSync(titleImageTemplatePath).toString('base64');
           const TITLE_ORIGINAL_IMAGE = titleImageTemplateBase64;
 
-          content.fileName = date + '-' + content.time + '-title';
+          content.fileName = date + '-' + content.time + '-title-' + content.country;
           content.TITLE_DATE = date + ' ' + content.time;
 
           const { imagePath = null, image = null } = await generators.base64(
