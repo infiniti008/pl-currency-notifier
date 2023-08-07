@@ -140,13 +140,19 @@ export async function getAllSubscriptionsWithTimeByCountry(time, country, subscr
 
       return [subscriptionById];
     } else {
-      const subscriptionsWithTime = await subscriptions.find(
-        { 
-          times: {
-            $elemMatch: { $eq: time }
-          },
-          country: { $eq: country }
+      const options = { 
+        times: {
+          $elemMatch: { $eq: time }
         },
+        country: { $eq: country }
+      };
+
+      if (subscriptionsCollection === 'content-manager') {
+        delete options.times;
+      }
+
+      const subscriptionsWithTime = await subscriptions.find(
+        options,
         {}
       ).toArray();
 
@@ -215,6 +221,37 @@ export async function getRenderSettings() {
     const dataCollection = await client.db(baseName).collection('render_settings');
     const content = await dataCollection.findOne();
     return content;
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export async function checkContentInMangerQ() {
+  try {
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    const qCount = await client.db(baseName).collection('content-manager').count();
+
+    return qCount;
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export async function getContentInMangerQ() {
+  try {
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    const result = await client.db(baseName).collection('content-manager').findOne();
+
+    return result;
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+export async function removeAllFromManagerQ() {
+  try {
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    await client.db(baseName).collection('content-manager').drop();
   } catch(err) {
     console.log(err);
   }

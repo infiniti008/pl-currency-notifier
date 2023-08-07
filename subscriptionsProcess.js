@@ -15,6 +15,7 @@ program
   .option('-tp, --template <template>', 'Template')
   .option('-sc, --collection <collection>', 'Collection')
   .option('-sid, --id <id>', 'Subscription Id')
+  .option('-dt, --datetime <datetime>', 'Date Time')
   .parse(process.argv);
 
 const options = program.opts();
@@ -26,7 +27,8 @@ import {
   getLastCurrencies,
   getDiffCurrencies,
   addContentToQ,
-  getRenderSettings
+  getRenderSettings,
+  removeAllFromManagerQ
 } from './base.js';
 
 async function userSubscriptionsProcess() {
@@ -40,7 +42,7 @@ async function userSubscriptionsProcess() {
 
     await initBase(true);
     // -- Get Time
-    const now = new Date();
+    const now = options.datetime ? new Date(options.datetime) : new Date();
     let time = now.toLocaleTimeString(['ru-RU']).split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);
     if (options.time) {
       time = options.time;
@@ -54,6 +56,17 @@ async function userSubscriptionsProcess() {
       if (!silenceMode) {
         console.log(err);
       }
+    }
+
+    if (options.collection == 'content-manager') {
+      renderSettings.video_shouldRender = true;
+      renderSettings.video_shouldSend_instagram = false,
+      renderSettings.video_shouldSend_tiktok = false;
+      renderSettings.video_shouldSend_youtube = false;
+      renderSettings.image_shouldRender = true;
+      renderSettings.image_shouldSend_telegram = false;
+      renderSettings.image_shouldSend_stories = false;
+      renderSettings.skipFilterByDay = true;
     }
 
     // -- Get Subscriptions
@@ -117,7 +130,7 @@ async function userSubscriptionsProcess() {
         item.now = time;
 
         // -- Get Values to Diff
-        const timeToGetDiff = getTimeToGetDiff(time, item.times, item.timeToGetDiff, item.dayToGetDiff, );
+        const timeToGetDiff = getTimeToGetDiff(time, item.times, item.timeToGetDiff, item.dayToGetDiff, now);
         const targetTimeToDiff = now.valueOf() - timeToGetDiff;
         item.targetTimeToDiff = targetTimeToDiff;
         const diffCurrencies = await getDiffCurrencies(options.country, item.keys, targetTimeToDiff);
@@ -173,6 +186,10 @@ async function userSubscriptionsProcess() {
       await Promise.all(addToQArr);
     }
 
+    if (options.collection == 'content-manager') {
+      await removeAllFromManagerQ();
+    }
+
     await end();
   } catch (err) {
     console.log(err);
@@ -184,12 +201,10 @@ async function end() {
   await closeConnection(true);
 }
 
-function getTimeToGetDiff(time, intervals, timeToGetDiff, dayToGetDiff) {
+function getTimeToGetDiff(time, intervals, timeToGetDiff, dayToGetDiff, now) {
   try {
     if (dayToGetDiff) {
       let diff = 1000 * 60;
-
-      const now = new Date();
 
       const dayDate = now.getDate();
       const dayDateToGetDiff = dayDate + dayToGetDiff;
@@ -304,6 +319,11 @@ function getTemplate(platform) {
 
 function prepareContentToRender(subscription, now, time) {
   const date = now.toLocaleDateString('ru-RU');
+  let fileName = date + '-' + (subscription.now ? subscription.now : time) + '-' + subscription._id.toString();
+  if (subscription.MANAGER_FILE_NAME) {
+    fileName = subscription.MANAGER_FILE_NAME;
+  }
+
   const connect = {
     records: [],
     id: subscription._id.toString(),
@@ -312,7 +332,7 @@ function prepareContentToRender(subscription, now, time) {
     time: subscription.now || time,
     date,
     dateTime: now.toLocaleString('ru-RU'),
-    fileName: date + '-' + (subscription.now ? subscription.now : time) + '-' + subscription._id.toString(),
+    fileName,
     template: getTemplate(subscription.platform),
     chatId: subscription.userId,
     platform: subscription.platform,
