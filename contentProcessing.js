@@ -11,7 +11,7 @@ const mediaFolderPath = process.env['mediaFolderPath_' + env];
 import { getContentFromQ, initBase, closeConnection, deleteContentFromQ } from './base.js';
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
-import { sendVideo, sendReelsToInstagram } from './sendVideo.js';
+import { sendVideo, sendReelsToInstagram, sendTikTok } from './sendVideo.js';
 import { sendStories } from './sendStories.js';
 
 async function processing() {
@@ -41,7 +41,7 @@ async function processing() {
       processContentResult = await processImages(content);
     }
 
-    await deleteContentFromQ(content._id.toString());
+    // await deleteContentFromQ(content._id.toString());
 
     t = process.hrtime(t);
     console.log(`== EXECUTION TIME: [ ${t[0]} ]`);
@@ -102,7 +102,8 @@ async function processVideo(content) {
   const renderSettings = content.renderSettings ?? {};
   const { 
     video_shouldSend_youtube = true,
-    video_shouldSend_instagram = true
+    video_shouldSend_instagram = true,
+    video_shouldSend_tiktok = true
   } = renderSettings;
 
   return new Promise(async(resolve, reject) => {
@@ -171,14 +172,22 @@ async function processVideo(content) {
             } else {
               sendVidoArr[1] = { status: false };
             }
+
+            if (video_shouldSend_tiktok) {
+              sendVidoArr[2] = sendTikTok(content);
+            } else {
+              sendVidoArr[2] = { status: false };
+            }
             
             const [ 
               uploadVideoResult,
-              uploadReelsResult 
+              uploadReelsResult,
+              uploadTiktokResult 
             ] = await Promise.all(sendVidoArr);
 
             console.log('uploadReelsResult', uploadReelsResult);
             console.log('uploadVideoResult', uploadVideoResult);
+            console.log('uploadTiktokResult', uploadTiktokResult);
           } catch(err) {
             console.log(err?.message);
           }

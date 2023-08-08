@@ -50,3 +50,24 @@ export function sendReelsToInstagram(content) {
     }
   });
 }
+
+export function sendTikTok(content) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      content.videoTitle = content?.videoTitle?.replace('#shorts', '#reels');
+      const response = await axios.post(imageRenderHost + '/api/send-tiktok', {
+        data: {
+          content
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      resolve(response.data);
+    } catch (error) {
+      console.error(error?.message);
+      reject({});
+    }
+  });
+}
