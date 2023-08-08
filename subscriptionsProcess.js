@@ -165,8 +165,8 @@ async function userSubscriptionsProcess() {
       const sortedCotentToSubscriptions = sortVideoSubscriptions(content, cotentToSubscriptions);
       content.cotentToSubscriptions = sortedCotentToSubscriptions;
 
-      content.videoTitle = generateName(content);
-      content.videoDescription = generateDescription(content);
+      generateName(content);
+      generateDescription(content);
 
       delete content._id;
       content.renderSettings = renderSettings;
@@ -401,50 +401,50 @@ function prepareContentToRender(subscription, now, time) {
 
 function generateName(content) {
   try {
-    const maxLength = 100;
     let videoTitle = '';
 
-    if (false) {
-      videoTitle = content.name + content.cotentToSubscriptions[0].dateTime;
-    } 
-    else {
-      videoTitle = content.cotentToSubscriptions?.map(item => item.records?.[0]?.BANK).join('][');
-    }
-
-    if (content.chanel === 'youtube') {
-      videoTitle = `[${videoTitle}][${content.cotentToSubscriptions[0].dateTime.replace(', ', '-').slice(0, 16)}] #shorts`;
-    }
-
-    return videoTitle;
+    videoTitle = content.titleTextTemplate;
+    const dateTime = content.cotentToSubscriptions[0].dateTime.replace(', ', '-');
+    videoTitle = videoTitle.replace('{{DATE_TIME}}', dateTime);
+    
+    content.videoTitle_youtube = videoTitle.replace('{{TITLE_TAGS}}', content.titleTags_youtube);
+    content.videoTitle_instagram = videoTitle.replace('{{TITLE_TAGS}}', content.titleTags_instagram);
+    content.videoTitle_tiktok = videoTitle.replace('{{TITLE_TAGS}}', content.titleTags_tiktok);
   } catch (err) {
     console.log(err);
-    return content.name || 'Name'
+    content.videoTitle_youtube = 'Name';
+    content.videoTitle_instagram = 'Name';
+    content.videoTitle_tiktok = 'Name';
   }
 } 
 
 function generateDescription(content) {
   try {
-    let videoDescription = content.description + '\r\n';
+    // let videoDescription = content.description + '\r\n';
     
-    const allTags = content.cotentToSubscriptions.map(content => content?.tags).join(' ') + ' ' + content.tags;
-    videoDescription = videoDescription.replace('{{TAGS}}', allTags);
-    videoDescription = videoDescription.replace('{{DATE}}', content.cotentToSubscriptions[0].dateTime);
+    // const allTags = content.cotentToSubscriptions.map(content => content?.tags).join(' ') + ' ' + content.tags;
+    // videoDescription = videoDescription.replace('{{TAGS}}', allTags);
+    // videoDescription = videoDescription.replace('{{DATE}}', content.cotentToSubscriptions[0].dateTime);
     
-    content.cotentToSubscriptions.forEach(content => {
-      const keyNames = content.records.map(record => `- ${record.NAME} | ${record.CURRENCY} = ${record.LAST_VALUE} ${record.CURRENCY_BASE}`);
+    // content.cotentToSubscriptions.forEach(content => {
+    //   const keyNames = content.records.map(record => `- ${record.NAME} | ${record.CURRENCY} = ${record.LAST_VALUE} ${record.CURRENCY_BASE}`);
 
-      videoDescription = videoDescription + keyNames.join(`\r\n`) + '\r\n\r\n';
-    });
+    //   videoDescription = videoDescription + keyNames.join(`\r\n`) + '\r\n\r\n';
+    // });
 
-    videoDescription = videoDescription.replace(/\| Buy/g, '| Buy ');
-    videoDescription = videoDescription.replace(/\| AVG/g, '| AVG ');
+    // videoDescription = videoDescription.replace(/\| Buy/g, '| Buy ');
+    // videoDescription = videoDescription.replace(/\| AVG/g, '| AVG ');
 
-    videoDescription = videoDescription.trim();
+    // videoDescription = videoDescription.trim();
 
-    return videoDescription;
+    const allTags = content.tags + ' ' + content.cotentToSubscriptions.map(content => content?.tags).join(' ');
+    const videoDescription = allTags + '\r\n\r\n' + content.description.join('\r\n');
+
+
+    content.videoDescription = videoDescription;
   } catch (err) {
     console.log(err);
-    return content.description || 'Description';
+    content.videoDescription = 'Description';
   }
 }
 

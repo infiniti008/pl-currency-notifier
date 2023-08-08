@@ -162,18 +162,21 @@ async function processVideo(content) {
           try {
             const sendVidoArr = [];
             if (video_shouldSend_youtube) {
+              content.videoTitle = content.videoTitle_youtube;
               sendVidoArr[0] = sendVideo(content);
             } else {
               sendVidoArr[0] = { status: false };
             }
 
             if (video_shouldSend_instagram) {
+              content.videoTitle = content.videoTitle_instagram;
               sendVidoArr[1] = sendReelsToInstagram(content);
             } else {
               sendVidoArr[1] = { status: false };
             }
 
             if (video_shouldSend_tiktok) {
+              content.videoTitle = content.videoTitle_tiktok;
               sendVidoArr[2] = sendTikTok(content);
             } else {
               sendVidoArr[2] = { status: false };
