@@ -41,7 +41,7 @@ async function processing() {
       processContentResult = await processImages(content);
     }
 
-    // await deleteContentFromQ(content._id.toString());
+    await deleteContentFromQ(content._id.toString());
 
     t = process.hrtime(t);
     console.log(`== EXECUTION TIME: [ ${t[0]} ]`);
