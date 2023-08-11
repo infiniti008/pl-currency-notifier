@@ -209,15 +209,8 @@ export async function checkContentInQ() {
 }
 
 export async function getRenderSettings() {
-  if (isDev) {
-    try {
-      return JSON.parse(fs.readFileSync('./render_settings.json').toString());
-    } catch(err) {
-      console.log(err);
-    }
-  }
   try {
-    const baseName = 'config_app';
+    const baseName = isDev ? 'currency_app_test' : 'config_app';
     const dataCollection = await client.db(baseName).collection('render_settings');
     const content = await dataCollection.findOne();
     return content;

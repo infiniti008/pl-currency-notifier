@@ -162,22 +162,34 @@ async function processVideo(content) {
           try {
             const sendVidoArr = [];
             if (video_shouldSend_youtube) {
-              content.videoTitle = content.videoTitle_youtube;
-              sendVidoArr[0] = sendVideo(content);
+              try {
+                content.videoTitle = content.videoTitle_youtube;
+                sendVidoArr[0] = await sendVideo(content);
+              } catch (err) {
+                sendVidoArr[0] = { status: false };
+              }
             } else {
               sendVidoArr[0] = { status: false };
             }
 
             if (video_shouldSend_instagram) {
-              content.videoTitle = content.videoTitle_instagram;
-              sendVidoArr[1] = sendReelsToInstagram(content);
+              try {
+                content.videoTitle = content.videoTitle_instagram;
+                sendVidoArr[1] = await sendReelsToInstagram(content);
+              } catch (err) {
+                sendVidoArr[0] = { status: false };
+              }
             } else {
               sendVidoArr[1] = { status: false };
             }
 
             if (video_shouldSend_tiktok) {
-              content.videoTitle = content.videoTitle_tiktok;
-              sendVidoArr[2] = sendTikTok(content);
+              try {
+                content.videoTitle = content.videoTitle_tiktok;
+                sendVidoArr[2] = await sendTikTok(content);
+              } catch (err) {
+                sendVidoArr[0] = { status: false };
+              }
             } else {
               sendVidoArr[2] = { status: false };
             }
@@ -186,7 +198,7 @@ async function processVideo(content) {
               uploadVideoResult,
               uploadReelsResult,
               uploadTiktokResult 
-            ] = await Promise.all(sendVidoArr);
+            ] = sendVidoArr;
 
             console.log('uploadReelsResult', uploadReelsResult);
             console.log('uploadVideoResult', uploadVideoResult);
