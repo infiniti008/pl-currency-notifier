@@ -9,12 +9,12 @@ const env = process.env.environment || 'prod';
 const mediaFolderPath = process.env['mediaFolderPath_' + env];
 
 const imagesFolder = fs.readdirSync(mediaFolderPath + '/images');
-const imagesToRemove = getItemsToDelete(imagesFolder);
-removeItems(imagesToRemove, '/images');
+// const imagesToRemove = getItemsToDelete(imagesFolder);
+removeItems(imagesFolder, '/images');
 
 const videosFolder = fs.readdirSync(mediaFolderPath + '/videos');
-const videosToRemove = getItemsToDelete(videosFolder);
-removeItems(videosToRemove, '/videos');
+// const videosToRemove = getItemsToDelete(videosFolder);
+removeItems(videosFolder, '/videos');
 
 function getItemsToDelete(items) {
   const date = new Date().toLocaleDateString('ru-RU');

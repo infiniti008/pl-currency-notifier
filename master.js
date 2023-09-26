@@ -48,7 +48,7 @@ async function masterRun() {
   );
 
   new CronJob(
-    '0 */12 * * *',
+    '0 4 * * 1',
     deleteMediaJob,
     async function() {
       console.log('==========================================');
