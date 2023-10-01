@@ -5,9 +5,10 @@
   "type": "module",
   "main": "request.js",
   "scripts": {
+    "start": "node master.js",
     "test-user": "node subscriptionsProcess --country by --collection subscriptions-users --id 64a97f602617e0f42ce1f791",
     "test-telegram": "node subscriptionsProcess --country by --collection subscriptions-telegram --time 12:25",
-    "test-video": "node subscriptionsProcess --country by --collection subscriptions-video --time 17:15",
+    "test-video": "node subscriptionsProcess --country pl --collection subscriptions-video --time 17:15",
     "test-stories": "node subscriptionsProcess --country by --collection subscriptions-stories --time 08:55",
     "test-youtube": "node postYoutube.js"
   },

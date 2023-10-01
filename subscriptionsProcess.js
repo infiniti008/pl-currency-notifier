@@ -48,27 +48,6 @@ async function userSubscriptionsProcess() {
       time = options.time;
     }
 
-    let renderSettings = {};
-
-    try {
-      renderSettings = await getRenderSettings();
-    } catch (err) {
-      if (!silenceMode) {
-        console.log(err);
-      }
-    }
-
-    if (options.collection == 'content-manager') {
-      renderSettings.video_shouldRender = true;
-      renderSettings.video_shouldSend_instagram = false,
-      renderSettings.video_shouldSend_tiktok = false;
-      renderSettings.video_shouldSend_youtube = false;
-      renderSettings.image_shouldRender = true;
-      renderSettings.image_shouldSend_telegram = false;
-      renderSettings.image_shouldSend_stories = false;
-      renderSettings.skipFilterByDay = true;
-    }
-
     // -- Get Subscriptions
     let allSubscriptionsWithTimeByCountry = await getAllSubscriptionsWithTimeByCountry(time, options.country, options.collection, options.id);
 
@@ -76,6 +55,8 @@ async function userSubscriptionsProcess() {
       await end();
       return;
     }
+
+    const renderSettings = await prepareRenderSettings(options.collection, allSubscriptionsWithTimeByCountry[0])
 
     let dayOfWeek = now.getDay() - 1;
     if (dayOfWeek === -1) {
@@ -100,10 +81,14 @@ async function userSubscriptionsProcess() {
       });
 
       if (allSubscriptionsWithTimeByCountry.length === 0) {
-        await end();
         if (!silenceMode) {
-          console.log('EMPTY SUBSCRIPTIONS LIST AFTER FILTERING');
+          console.log('EMPTY SUBSCRIPTIONS LIST AFTER FILTERING', allSubscriptionsWithTimeByCountry);
         }
+
+        if (options.collection == 'content-manager') {
+          await removeAllFromManagerQ();
+        }
+        await end();
         return;
       }
     }
@@ -485,6 +470,35 @@ function checkHasChanges(content) {
   });
 
   return hasChanges;
+}
+
+async function prepareRenderSettings(collection, subscription) {
+  let renderSettings = {}
+  try {
+    renderSettings = await getRenderSettings();
+
+    if (subscription && subscription.MANAGER_RENDER_SETTINGS) {
+      for (const key in subscription.MANAGER_RENDER_SETTINGS) {
+        renderSettings[key] = subscription.MANAGER_RENDER_SETTINGS[key];
+      }
+    }
+    else if (collection === 'content-manager') {
+      renderSettings.video_shouldRender = true;
+      renderSettings.video_shouldSend_instagram = false,
+      renderSettings.video_shouldSend_tiktok = false;
+      renderSettings.video_shouldSend_youtube = false;
+      renderSettings.image_shouldRender = true;
+      renderSettings.image_shouldSend_telegram = false;
+      renderSettings.image_shouldSend_stories = false;
+      renderSettings.skipFilterByDay = true;
+    }
+  } catch (err) {
+    if (!silenceMode) {
+      console.log(err);
+    }
+  }
+
+  return renderSettings;
 }
 
 userSubscriptionsProcess();

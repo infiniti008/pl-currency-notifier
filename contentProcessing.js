@@ -8,7 +8,7 @@ import fs from 'fs';
 const env = process.env.environment || 'prod';
 const mediaFolderPath = process.env['mediaFolderPath_' + env];
 
-import { getContentFromQ, initBase, closeConnection, deleteContentFromQ } from './base.js';
+import { getContentFromQ, initBase, closeConnection, deleteContentFromQ, addPostingResult } from './base.js';
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
 import { sendVideo, sendReelsToInstagram, sendTikTok } from './sendVideo.js';
@@ -64,6 +64,7 @@ async function processImages(content) {
 
   return new Promise(async(resolve, reject) => {
     try {
+      const addResultsArr = []
       // -- Render Image
       const { imagePath = null, image = null } = await generators.base64(content, content.template);
       if (!imagePath && !image) {
@@ -87,8 +88,13 @@ async function processImages(content) {
 
       if (image_shouldSend_stories && content.platform === 'subscriptions-stories') {
         // Send photo to Stories
-        await sendStories(content);
+        const result = await sendStories(content);
+        result.content = content;
+
+        addResultsArr.push(addPostingResult(result));
       }
+
+      await Promise.all(addResultsArr)
       
       resolve(true);
     } catch(err) {
@@ -166,10 +172,15 @@ async function processVideo(content) {
                 content.videoTitle = content.videoTitle_youtube;
                 sendVidoArr[0] = await sendVideo(content);
               } catch (err) {
-                sendVidoArr[0] = { status: false };
+                sendVidoArr[0] = {
+                  completed: false,
+                  errors: [err?.message]
+                };
               }
             } else {
-              sendVidoArr[0] = { status: false };
+              sendVidoArr[0] = {
+                completed: false
+              };
             }
 
             if (video_shouldSend_instagram) {
@@ -177,10 +188,13 @@ async function processVideo(content) {
                 content.videoTitle = content.videoTitle_instagram;
                 sendVidoArr[1] = await sendReelsToInstagram(content);
               } catch (err) {
-                sendVidoArr[0] = { status: false };
+                sendVidoArr[1] = {
+                  completed: false,
+                  errors: [err?.message]
+                };
               }
             } else {
-              sendVidoArr[1] = { status: false };
+              sendVidoArr[1] = { completed: false };
             }
 
             if (video_shouldSend_tiktok) {
@@ -188,10 +202,13 @@ async function processVideo(content) {
                 content.videoTitle = content.videoTitle_tiktok;
                 sendVidoArr[2] = await sendTikTok(content);
               } catch (err) {
-                sendVidoArr[0] = { status: false };
+                sendVidoArr[2] = {
+                  completed: false,
+                  errors: [err?.message]
+                };
               }
             } else {
-              sendVidoArr[2] = { status: false };
+              sendVidoArr[2] = { completed: false };
             }
             
             const [ 

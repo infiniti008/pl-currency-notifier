@@ -249,3 +249,13 @@ export async function removeAllFromManagerQ() {
     console.log(err);
   }
 }
+
+export async function addPostingResult(result) {
+  try {
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    await client.db(baseName).collection('posting-results').insertOne(result);
+  } catch(err) {
+    console.log(err);
+  }
+}
+
