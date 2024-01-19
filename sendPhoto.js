@@ -11,7 +11,7 @@ const botToken = process.env.botToken;
 const TELEGRAM_API = "https://api.telegram.org/bot" + botToken;
 
 export function sendPhoto(image, chatId, caption) {
-  return new Promise(async(resolve, reject) => {
+  return new Promise(async(resolve) => {
     try {
       caption = caption ? caption : new Date().toLocaleString('ru-RU');
       const formData = new FormData();
@@ -20,14 +20,14 @@ export function sendPhoto(image, chatId, caption) {
       formData.append('photo', image, { filename : 'image.png' });
       formData.append('caption', caption);
 
-      const response = await axios.post(`${TELEGRAM_API}/sendPhoto`, formData, {
+      await axios.post(`${TELEGRAM_API}/sendPhoto`, formData, {
         headers: formData.getHeaders(),
       });
 
-      resolve(response.status);
+      resolve({ completed: true });
     } catch (error) {
-      console.error(error.message);
-      reject(null);
+      console.error(error);
+      resolve({ completed: false, error: error.message });
     }
   });
 }

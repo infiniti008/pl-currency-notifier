@@ -130,6 +130,34 @@ export async function getDiffCurrencies(country, keys, timestamp) {
   }
 }
 
+export async function getAllSubscriptionsByTimeByCountry(time, country, subscriptionsCollection, subscriptionId) {
+  try {
+    const baseName = isDev ? 'currency_app_test' : 'currency_app';
+    const subscriptions = await client.db(baseName).collection(subscriptionsCollection);
+
+    if (subscriptionId) {
+      const subscriptionById = await subscriptions.findOne({ _id: new ObjectId(subscriptionId) })
+
+      return [subscriptionById];
+    } else {
+      const options = { 
+        time: { $eq: time },
+        country: { $eq: country }
+      };
+
+      const subscriptionsWithTime = await subscriptions.find(
+        options,
+        {}
+      ).toArray();
+
+      return subscriptionsWithTime;
+    }
+  } catch(err) {
+    console.log(err);
+    return null;
+  }
+}
+
 export async function getAllSubscriptionsWithTimeByCountry(time, country, subscriptionsCollection, subscriptionId) {
   try {
     const baseName = isDev ? 'currency_app_test' : 'currency_app';
@@ -190,7 +218,13 @@ export async function deleteContentFromQ(id) {
   try {
     const baseName = isDev ? 'currency_app_test' : 'currency_app';
     const dataCollection = await client.db(baseName).collection('processing-q');
-    const result = await dataCollection.deleteOne({ _id: new ObjectId(id) });
+    const query = { 
+      $or: [
+        { _id: new ObjectId(id) },
+        { _id: id }
+      ]
+    }
+    const result = await dataCollection.deleteOne(query);
     return result;
   } catch(err) {
     console.log(err);
@@ -250,10 +284,13 @@ export async function removeAllFromManagerQ() {
   }
 }
 
-export async function addPostingResult(result) {
+export async function addPostingFeed(subscription) {
   try {
     const baseName = isDev ? 'currency_app_test' : 'currency_app';
-    await client.db(baseName).collection('posting-results').insertOne(result);
+
+    subscription.timestamp = new Date().valueOf();
+    delete subscription._id;
+    await client.db(baseName).collection('subscriptions-feed').insertOne(subscription);
   } catch(err) {
     console.log(err);
   }

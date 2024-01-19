@@ -8,12 +8,12 @@ import axios from 'axios';
 const environment = process.env.environment || 'prod';
 const imageRenderHost = process.env['imageRenderHost_' + environment];
 
-export function sendStories(content) {
-  return new Promise(async(resolve, reject) => {
+export function sendStories(subscription) {
+  return new Promise(async(resolve) => {
     try {
       const response = await axios.post(imageRenderHost + '/api/send-stories', {
         data: {
-          content
+          subscription
         },
         headers: {
           'Content-Type': 'application/json'
@@ -23,7 +23,7 @@ export function sendStories(content) {
       resolve(response.data);
     } catch (error) {
       console.error(error.message);
-      reject(null);
+      resolve({ completed: false, error: error.message });
     }
   });
 }

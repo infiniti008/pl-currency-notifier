@@ -120,4 +120,24 @@ generators.html = async function (content, templateName) {
   }
 }
 
+generators.imageV2 = async function (subscription) {
+  return new Promise(async(resolve) => {
+    try {
+      const response = await axios.post(imageRenderHost + '/api/render/image', {
+        data: {
+          subscription,
+        },
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      resolve(response.data);
+    } catch(e) {
+      console.log(e?.message);
+      resolve({ completed: false });
+    }
+  });
+}
+
 export default generators;
