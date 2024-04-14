@@ -5,23 +5,17 @@ dotenv.config({
 
 import fs from 'fs';
 
-const env = process.env.environment || 'prod';
-const mediaFolderPath = process.env['mediaFolderPath_' + env];
-
 import { getContentFromQ, initBase, closeConnection, deleteContentFromQ, addPostingFeed, getRenderSettings } from './base.js';
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
-import { sendVideo, sendReelsToInstagram, sendTikTok } from './sendVideo.js';
+import { sendYoutube, sendReelsToInstagram, sendTikTok, generateName, generateDescription } from './sendVideo.js';
 import { sendStories } from './sendStories.js';
 
 async function processing() {
-  // Init Base
   await initBase(true);
 
-  // Get nextItem from Q
   const subscription = await getContentFromQ();
 
-  // Process subscription
   if (subscription) {
     subscription.processes = {};
     const renderSettings = await getRenderSettings();
@@ -33,10 +27,10 @@ async function processing() {
     let t = process.hrtime();
 
     console.log(`== RUN: CONTENT PROCESSING ==`);
-    console.log(`== [ ${subscription.time} ] [ ${subscription.name} ] [ ${subscription.platform} ]`);
+    console.log(`== [ ${subscription.time} ] [ ${subscription.country} ] [ ${subscription.platform} ]`);
 
-    if (video_shouldRender && subscription.platform === 'subscriptions-video-all') {
-      await processVideo(subscription, renderSettings);
+    if (video_shouldRender && subscription.platform === 'subscriptions-video') {
+      await processVideo(subscription);
     } else if (image_shouldRender) {
       await processImages(subscription, renderSettings);
     }
@@ -45,7 +39,7 @@ async function processing() {
       await addPostingFeed(subscription);
     }
 
-    await deleteContentFromQ(subscription.id);
+    await deleteContentFromQ(subscription.subscriptionId);
 
     t = process.hrtime(t);
     console.log(`== EXECUTION TIME: [ ${t[0]} ]`);
@@ -94,133 +88,77 @@ async function processImages(subscription, renderSettings) {
   }
 }
 
-async function processVideo(content, renderSettings) {
+async function processVideo(subscription) {
   const { 
-    video_shouldSend_youtube = true,
-    video_shouldSend_instagram = true,
-    video_shouldSend_tiktok = true
-  } = renderSettings;
+    shouldPostYoutube = true,
+    shouldPostInstagram = true,
+    shouldPostTiktok = true
+  } = subscription;
 
-  return new Promise(async(resolve, reject) => {
-    try {
-      const date = new Date().toLocaleDateString('ru-RU');
+  try {
+    subscription.processes.renderVideo = await generators.video_v2(subscription);
+    const { completed: renderVideoStatus = false, videoPath = null } = subscription.processes.renderVideo;
 
-      // -- Render Image
-      for(let i = 0; i < content.cotentToSubscriptions.length; i++) {
-        const contentItem = content.cotentToSubscriptions[i];
-        const { imagePath = null, image = null } = await generators.base64(contentItem, contentItem.template);
-        if (!imagePath && !image) {
-          reject(false);
-          return;
-        }
+    if (videoPath) {
+      subscription.videoPath = videoPath;
 
-        contentItem.imagePath = imagePath;
-      }
+      generateName(subscription);
+      generateDescription(subscription);
 
-      // Render Title Image
-      if (content.titleImageTemplate && content.titleImagePathVariable) {
+      if (shouldPostYoutube) {
         try {
-          const titleImageTemplatePath = mediaFolderPath + renderSettings[content.titleImagePathVariable];
-          const titleImageTemplateBase64 = fs.readFileSync(titleImageTemplatePath).toString('base64');
-          const TITLE_ORIGINAL_IMAGE = titleImageTemplateBase64;
-
-          content.fileName = date + '-' + content.time + '-title-' + content.country;
-          content.TITLE_DATE = date + ' ' + content.time;
-
-          const { imagePath = null, image = null } = await generators.base64(
-            content,
-            content.titleImageTemplate,
-            false,
-            null,
-            [
-              {
-                rule: "{{ TITLE_ORIGINAL_IMAGE }}",
-                string: TITLE_ORIGINAL_IMAGE
-              }
-            ]
-          );
-
-          content.titleImagePath = imagePath;
-        } catch (err) {
-          console.log(err);
+          subscription.videoTitle = subscription.videoTitle_youtube;
+          subscription.processes.sendYoutube = await sendYoutube(subscription);
+        } catch(err) {  
+          subscription.processes.sendYoutube = {
+            completed: false,
+            errors: [err?.message]
+          };
         }
       }
 
-      content.fileName = date + '-' + content.time + '-' + content._id.toString()
-
-      if (content.platform === 'subscriptions-video-all') {
-        const { videoPath = null } = await generators.video(content);
-
-        if (videoPath) {
-          content.videoPath = videoPath;
-
-          try {
-            const sendVidoArr = [];
-            if (video_shouldSend_youtube) {
-              try {
-                content.videoTitle = content.videoTitle_youtube;
-                // sendVidoArr[0] = await sendVideo(content);
-              } catch (err) {
-                sendVidoArr[0] = {
-                  completed: false,
-                  errors: [err?.message]
-                };
-              }
-            } else {
-              sendVidoArr[0] = {
-                completed: false
-              };
-            }
-
-            if (video_shouldSend_instagram) {
-              try {
-                content.videoTitle = content.videoTitle_instagram;
-                // sendVidoArr[1] = await sendReelsToInstagram(content);
-              } catch (err) {
-                sendVidoArr[1] = {
-                  completed: false,
-                  errors: [err?.message]
-                };
-              }
-            } else {
-              sendVidoArr[1] = { completed: false };
-            }
-
-            if (video_shouldSend_tiktok) {
-              try {
-                content.videoTitle = content.videoTitle_tiktok;
-                // sendVidoArr[2] = await sendTikTok(content);
-              } catch (err) {
-                sendVidoArr[2] = {
-                  completed: false,
-                  errors: [err?.message]
-                };
-              }
-            } else {
-              sendVidoArr[2] = { completed: false };
-            }
-            
-            const [ 
-              uploadVideoResult,
-              uploadReelsResult,
-              uploadTiktokResult 
-            ] = sendVidoArr;
-
-            console.log('uploadReelsResult', uploadReelsResult);
-            console.log('uploadVideoResult', uploadVideoResult);
-            console.log('uploadTiktokResult', uploadTiktokResult);
-          } catch(err) {
-            console.log(err?.message);
-          }
-        }
+      if (shouldPostInstagram) {
+        try {
+          subscription.videoTitle = subscription.videoTitle_youtube;
+          subscription.processes.sendInstagramReels = await sendReelsToInstagram(subscription)
+        } catch(err) {
+          subscription.processes.sendInstagramReels = {
+            completed: false,
+            errors: [err?.message]
+          };
+        } 
       }
-       
-      resolve(true);
-    } catch(err) {
-      console.log(err?.message);
-      reject(false);
+
+      if (shouldPostTiktok) {
+        try {
+          subscription.videoTitle = subscription.videoTitle_youtube;
+          subscription.processes.sendTikTok = await sendTikTok(subscription);
+        } catch(err) {
+          subscription.processes.sendInstagramReels = {
+            completed: false,
+            errors: [err?.message]
+          };
+        } 
+      }
+
+
+      //     if (video_shouldSend_tiktok) {
+      //       try {
+      //         content.videoTitle = content.videoTitle_tiktok;
+      //         // sendVidoArr[2] = await sendTikTok(content);
+      //       } catch (err) {
+      //         sendVidoArr[2] = {
+      //           completed: false,
+      //           errors: [err?.message]
+      //         };
+      //       }
+      //     } else {
+      //       sendVidoArr[2] = { completed: false };
+      //     }
     }
-  });
+  } catch(err) {
+    console.log(err?.message);
+  }
 }
 
 function getBufferedImage(imagePath) {

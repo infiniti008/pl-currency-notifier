@@ -6,10 +6,11 @@
   "main": "request.js",
   "scripts": {
     "start": "node master.js",
-    "test-user": "node subscriptionsProcess --country by --collection subscriptions-users --id 64a97f602617e0f42ce1f791",
-    "test-telegram": "node subscriptionsProcess --country by --collection subscriptions-telegram --time 12:25",
-    "test-video": "node subscriptionsProcess --country pl --collection subscriptions-video --time 17:15",
-    "test-stories": "node subscriptionsProcess --country by --collection subscriptions-stories --time 08:55",
+    "test-user": "node subscriptionsProcess_v2 --country pl --collection subscriptions-users --time 08:00",
+    "test-telegram": "node subscriptionsProcess_v2 --country pl --collection subscriptions-telegram --time 10:20",
+    "test-video": "node subscriptionsProcess_v2 --country by --collection subscriptions-video --time 17:15",
+    "test-stories": "node subscriptionsProcess_v2 --country by --collection subscriptions-stories --time 17:10",
+    "test-streem": "node ./streem-youtube/index.js --country by --collection streem-youtube --time 09:00",
     "test-youtube": "node postYoutube.js"
   },
   "repository": {
@@ -28,7 +29,9 @@
     "cron": "^2.3.1",
     "dotenv": "^16.1.0",
     "form-data": "^4.0.0",
+    "googleapis": "^131.0.0",
     "handlebars": "^4.7.7",
+    "luxon": "^3.4.4",
     "mongodb": "^5.5.0",
     "node-telegram-bot-api": "^0.61.0"
   }

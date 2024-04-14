@@ -220,8 +220,8 @@ export async function deleteContentFromQ(id) {
     const dataCollection = await client.db(baseName).collection('processing-q');
     const query = { 
       $or: [
-        { _id: new ObjectId(id) },
-        { _id: id }
+        { subscriptionId: new ObjectId(id) },
+        { subscriptionId: id }
       ]
     }
     const result = await dataCollection.deleteOne(query);

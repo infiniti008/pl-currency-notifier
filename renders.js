@@ -140,4 +140,22 @@ generators.imageV2 = async function (subscription) {
   });
 }
 
+generators.video_v2 = async function (subscription) {
+  try {
+    const response = await axios.post(imageRenderHost + '/api/render/video', {
+      data: {
+        subscription,
+      },
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+
+    return response.data;
+  } catch(e) {
+    console.log(e?.message);
+    return { completed: false, errors: [e?.message]};
+  }
+}
+
 export default generators;
