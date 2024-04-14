@@ -75,7 +75,7 @@ async function userSubscriptionsProcess() {
 
     if (allSubscriptionsWithTimeByCountry.length === 0) {
       if (!silenceMode) {
-        console.log('EMPTY SUBSCRIPTIONS LIST AFTER FILTERING', allSubscriptionsWithTimeByCountry);
+        console.log(`Subscriptions Count = ${allSubscriptionsWithTimeByCountry.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
       }
 
       await end();

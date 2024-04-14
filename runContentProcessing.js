@@ -23,9 +23,13 @@ async function runner() {
 function runContentProcessing() {
   const runContentProcess = spawn('node', ['./contentProcessing']);
 
-  runContentProcess.stdout.on('data', () => {});
+  runContentProcess.stdout.on('data', (data) => {
+    console.log(data.toString()?.trim());
+  });
 
-  runContentProcess.stderr.on('data', () => {});
+  runContentProcess.stderr.on('data', (data) => {
+    console.error(data.toString()?.trim());
+  });
 
   runContentProcess.on('close', () => {
     isInProgress = false;

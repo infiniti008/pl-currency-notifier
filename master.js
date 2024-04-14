@@ -29,14 +29,14 @@ async function masterRun() {
     '*/1 * * * *',
     async function() {
       console.log(`==== RUN JOB: Chanel Subscriptions  [ ${new Date().toLocaleTimeString()} ] ====`);
-      telegramSubscriptionsJobPL();
-      telegramSubscriptionsJobBY();
+      // telegramSubscriptionsJobPL();
+      // telegramSubscriptionsJobBY();
 
-      videoSubscriptionsJobPL();
-      videoSubscriptionsJobBY();
+      // videoSubscriptionsJobPL();
+      // videoSubscriptionsJobBY();
 
-      storiesSubscriptionsJobPL();
-      storiesSubscriptionsJobBY();
+      // storiesSubscriptionsJobPL();
+      // storiesSubscriptionsJobBY();
     },
     async function() {
       console.log('==========================================');
