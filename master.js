@@ -7,7 +7,9 @@ import { CronJob } from 'cron';
 import { spawn } from 'node:child_process';
 
 async function masterRun() {
-  telegramBotJob();
+  if (process.env.environment !== 'dev') { 
+    telegramBotJob();
+  }
   processingQJob();
 
   new CronJob(
@@ -29,8 +31,8 @@ async function masterRun() {
     '*/1 * * * *',
     async function() {
       console.log(`==== RUN JOB: Chanel Subscriptions  [ ${new Date().toLocaleTimeString()} ] ====`);
-      // telegramSubscriptionsJobPL();
-      // telegramSubscriptionsJobBY();
+      telegramSubscriptionsJobPL();
+      telegramSubscriptionsJobBY();
 
       // videoSubscriptionsJobPL();
       // videoSubscriptionsJobBY();

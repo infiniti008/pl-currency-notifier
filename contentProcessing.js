@@ -74,10 +74,10 @@ async function processImages(subscription, renderSettings) {
     subscription.imagePath = imagePath;
 
     if (image_shouldSend_telegram && subscription.platform === 'subscriptions-users') {
-      subscription.processes.sendPhoto = await sendPhoto(getBufferedImage(imagePath), subscription.userId);
+      subscription.processes.sendPhoto = await sendPhoto(getBufferedImage(imagePath), subscription.userId, 'https://ko-fi.com/currency_notifications_app');
     }
     else if (image_shouldSend_telegram && subscription.platform === 'subscriptions-telegram') {
-      subscription.processes.sendPhoto = await sendPhoto(getBufferedImage(imagePath), subscription.chanel, 'https://ko-fi.com/currency_notifications_app');
+      subscription.processes.sendPhoto = await sendPhoto(getBufferedImage(imagePath), subscription.chanel, subscription.caption);
     }
 
     if (image_shouldSend_stories && subscription.platform === 'subscriptions-stories') {
