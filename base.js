@@ -34,7 +34,7 @@ export default class BaseClient {
     try {
       const baseName = this.isDev ? 'currency_app_test' : 'currency_app';
       const qCount = await this.client.db(baseName).collection('processing-q').count();
-      console.log('Items In Q =', qCount);
+      !this.isSilent && console.log('Items In Q =', qCount);
   
       return qCount;
     } catch(err) {
