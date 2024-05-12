@@ -7,16 +7,28 @@ import { CronJob } from 'cron';
 import { spawn } from 'node:child_process';
 
 async function masterRun() {
-  if (process.env.environment !== 'dev') { 
-    telegramBotJob();
-  }
+  telegramBotJob();
+  
   processingQJob();
 
   new CronJob(
     '*/1 * * * *',
     async function() {
-      userSubscriptionsJobPL();
-      userSubscriptionsJobBY();
+      try {
+        userSubscriptionsJobPL();
+        userSubscriptionsJobBY();
+
+        telegramSubscriptionsJobPL();
+        telegramSubscriptionsJobBY();
+
+        videoSubscriptionsJobPL();
+        videoSubscriptionsJobBY();
+
+        // storiesSubscriptionsJobPL();
+        // storiesSubscriptionsJobBY();
+      } catch(err) {
+        console.log(err);
+      }
     },
     async function() {
       console.log('==========================================');
@@ -27,27 +39,27 @@ async function masterRun() {
     'Europe/Warsaw'
   );
   
-  new CronJob(
-    '*/1 * * * *',
-    async function() {
-      console.log(`==== RUN JOB: Chanel Subscriptions  [ ${new Date().toLocaleTimeString()} ] ====`);
-      telegramSubscriptionsJobPL();
-      telegramSubscriptionsJobBY();
+  // new CronJob(
+  //   '*/1 * * * *',
+  //   async function() {
+  //     console.log(`==== RUN JOB: Chanel Subscriptions  [ ${new Date().toLocaleTimeString()} ] ====`);
+  //     telegramSubscriptionsJobPL();
+  //     telegramSubscriptionsJobBY();
 
-      videoSubscriptionsJobPL();
-      videoSubscriptionsJobBY();
+  //     videoSubscriptionsJobPL();
+  //     videoSubscriptionsJobBY();
 
-      // storiesSubscriptionsJobPL();
-      // storiesSubscriptionsJobBY();
-    },
-    async function() {
-      console.log('==========================================');
-      console.log('==== EXIT JOB: Chanel Subscriptions  ====');
-      console.log('==========================================');
-    },
-    true,
-    'Europe/Warsaw'
-  );
+  //     // storiesSubscriptionsJobPL();
+  //     // storiesSubscriptionsJobBY();
+  //   },
+  //   async function() {
+  //     console.log('==========================================');
+  //     console.log('==== EXIT JOB: Chanel Subscriptions  ====');
+  //     console.log('==========================================');
+  //   },
+  //   true,
+  //   'Europe/Warsaw'
+  // );
 
   new CronJob(
     '0 4 * * 1',
@@ -235,6 +247,8 @@ async function deleteMediaJob() {
 }
 
 async function telegramBotJob() {
+  if (process.env.environment !== 'dev') { return; }
+  
   const time = new Date().toLocaleString();
   console.log('==========================================');
   console.log('==== START JOB: Telegram BOT ====');

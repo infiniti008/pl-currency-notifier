@@ -5,20 +5,22 @@ dotenv.config({
 
 import fs from 'fs';
 
-import { getContentFromQ, initBase, closeConnection, deleteContentFromQ, addPostingFeed, getRenderSettings } from './base.js';
+import BaseClient from './base.js';
+const base = new BaseClient(true);
+
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
 import { sendYoutube, sendReelsToInstagram, sendTikTok, generateName, generateDescription } from './sendVideo.js';
 import { sendStories } from './sendStories.js';
 
 async function processing() {
-  await initBase(true);
+  await base.connect();
 
-  const subscription = await getContentFromQ();
+  const subscription = await base.getContentFromQ();
 
   if (subscription) {
     subscription.processes = {};
-    const renderSettings = await getRenderSettings();
+    const renderSettings = await base.getRenderSettings();
     const { 
       image_shouldRender = true,
       video_shouldRender = true
@@ -36,19 +38,17 @@ async function processing() {
     }
 
     if (subscription.shouldPostToFeed) {
-      await addPostingFeed(subscription);
+      await base.addPostingFeed(subscription);
     }
 
-    await deleteContentFromQ(subscription.subscriptionId);
+    await base.deleteContentFromQ(subscription.subscriptionId);
 
     t = process.hrtime(t);
     console.log(`== EXECUTION TIME: [ ${t[0]} ]`);
     console.log(`== END: CONTENT PROCESSING ==`);
   }
 
-  await closeConnection(true);
-
-  setTimeout(() => {}, 1000);
+  await base.closeConnection();
 }
 
 processing();
@@ -140,21 +140,6 @@ async function processVideo(subscription) {
           };
         } 
       }
-
-
-      //     if (video_shouldSend_tiktok) {
-      //       try {
-      //         content.videoTitle = content.videoTitle_tiktok;
-      //         // sendVidoArr[2] = await sendTikTok(content);
-      //       } catch (err) {
-      //         sendVidoArr[2] = {
-      //           completed: false,
-      //           errors: [err?.message]
-      //         };
-      //       }
-      //     } else {
-      //       sendVidoArr[2] = { completed: false };
-      //     }
     }
   } catch(err) {
     console.log(err?.message);

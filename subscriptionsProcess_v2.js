@@ -20,12 +20,8 @@ program
 
 const options = program.opts();
 
-import {
-  initBase,
-  closeConnection,
-  getAllSubscriptionsByTimeByCountry,
-  addContentToQ
-} from './base.js';
+import BaseClient from './base.js';
+const base = new BaseClient(true);
 
 async function userSubscriptionsProcess() {
   try {
@@ -36,7 +32,7 @@ async function userSubscriptionsProcess() {
       process.env.TZ = 'Europe/Warsaw';
     }
 
-    await initBase(true);
+    await base.connect();
     // -- Get Time
     const now = options.datetime ? new Date(options.datetime) : new Date();
     let time = now.toLocaleTimeString(['ru-RU']).split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);
@@ -45,10 +41,10 @@ async function userSubscriptionsProcess() {
     }
 
     // -- Get Subscriptions
-    let allSubscriptionsWithTimeByCountry = await getAllSubscriptionsByTimeByCountry(time, options.country, options.collection, options.id);
+    let allSubscriptionsWithTimeByCountry = await base.getAllSubscriptionsByTimeByCountry(time, options.country, options.collection, options.id);
 
     if (!allSubscriptionsWithTimeByCountry) {
-      await end();
+      await base.closeConnection();
       return;
     }
 
@@ -78,7 +74,7 @@ async function userSubscriptionsProcess() {
         console.log(`Subscriptions Count = ${allSubscriptionsWithTimeByCountry.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
       }
 
-      await end();
+      await base.closeConnection();
       return;
     }
 
@@ -91,20 +87,16 @@ async function userSubscriptionsProcess() {
     allSubscriptionsWithTimeByCountry.forEach((subscription) => {
       subscription.subscriptionId = subscription._id.toString();
       delete subscription._id;
-      addToQArr.push(addContentToQ(subscription));
+      addToQArr.push(base.addContentToQ(subscription));
     });
 
     await Promise.all(addToQArr);
 
-    await end();
+    await base.closeConnection();
   } catch (err) {
     console.log(err);
-    await end();
+    await base.closeConnection();
   }
-}
-
-async function end() {
-  await closeConnection(true);
 }
 
 userSubscriptionsProcess();
