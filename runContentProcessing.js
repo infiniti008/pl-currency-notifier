@@ -1,11 +1,11 @@
 import { spawn } from 'node:child_process';
 import BaseClient from './base.js';
 
-const base = new BaseClient(true);
 let isInProgress = false;
 
 async function runner() {
   setInterval(async () => {
+    const base = new BaseClient(true);
     await base.connect();
 
     const countInQ = await base.checkContentInQ();
@@ -15,7 +15,7 @@ async function runner() {
       isInProgress = true;
       runContentProcessing();
     }
-    
+
     await base.closeConnection();
   }, 5000);
 }
