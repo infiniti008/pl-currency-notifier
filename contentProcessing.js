@@ -90,9 +90,9 @@ async function processImages(subscription, renderSettings) {
 
 async function processVideo(subscription) {
   const { 
-    shouldPostYoutube = true,
-    shouldPostInstagram = true,
-    shouldPostTiktok = true
+    shouldPostYoutube = false,
+    shouldPostInstagram = false,
+    shouldPostTiktok = false
   } = subscription;
 
   try {
