@@ -5,9 +5,9 @@ const base = new BaseClient(true);
 let isInProgress = false;
 
 async function runner() {
-  await base.connect();
-
   setInterval(async () => {
+    await base.connect();
+
     const countInQ = await base.checkContentInQ();
     if (!isInProgress && countInQ > 0) {
       console.log('=================');
@@ -15,6 +15,8 @@ async function runner() {
       isInProgress = true;
       runContentProcessing();
     }
+    
+    await base.closeConnection();
   }, 5000);
 }
 

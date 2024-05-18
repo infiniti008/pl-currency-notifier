@@ -26,8 +26,10 @@ export default class BaseClient {
   }
 
   async closeConnection() {
-    await this.client.close();
-    !this.isSilent && console.log('Connection to base closed');
+    setTimeout(async () => {
+      await this.client.close();
+      !this.isSilent && console.log('Connection to base closed');
+    }, 10000);
   }
 
   async checkContentInQ() {
