@@ -32,7 +32,13 @@ async function userSubscriptionsProcess() {
       process.env.TZ = 'Europe/Warsaw';
     }
 
-    await base.connect();
+    try {
+      await base.connect();
+    } catch (err) {
+      console.error('Failed to connect to MongoDB:', err.message);
+      process.exit(1);
+    }
+
     // -- Get Time
     const now = options.datetime ? new Date(options.datetime) : new Date();
     let time = now.toLocaleTimeString(['ru-RU']).split(':').map(i => i.length === 2 ? i : '0' + i).join(':').slice(0, 5);

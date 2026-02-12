@@ -14,7 +14,12 @@ import { sendYoutube, sendReelsToInstagram, sendTikTok, generateName, generateDe
 import { sendStories } from './sendStories.js';
 
 async function processing() {
-  await base.connect();
+  try {
+    await base.connect();
+  } catch (err) {
+    console.error('Failed to connect to MongoDB:', err.message);
+    process.exit(1);
+  }
 
   const subscription = await base.getContentFromQ();
 

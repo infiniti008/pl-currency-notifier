@@ -6,17 +6,22 @@ let isInProgress = false;
 async function runner() {
   setInterval(async () => {
     const base = new BaseClient(true);
-    await base.connect();
+    try {
+      await base.connect();
 
-    const countInQ = await base.checkContentInQ();
-    if (!isInProgress && countInQ > 0) {
-      console.log('=================');
-      console.log('== Items In Q =', countInQ);
-      isInProgress = true;
-      runContentProcessing();
+      const countInQ = await base.checkContentInQ();
+      if (!isInProgress && countInQ > 0) {
+        console.log('=================');
+        console.log('== Items In Q =', countInQ);
+        isInProgress = true;
+        runContentProcessing();
+      }
+
+      await base.closeConnection();
+    } catch (err) {
+      console.error('Error in runner:', err.message);
+      // Connection will be retried on next interval
     }
-
-    await base.closeConnection();
   }, 5000);
 }
 
