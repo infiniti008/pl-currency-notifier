@@ -1,33 +1,58 @@
+import { parentPort } from 'node:worker_threads';
 import * as dotenv from 'dotenv';
-dotenv.config({
-  path: './.env'
-});
-
-import fs from 'fs';
+dotenv.config({ path: './.env' });
 
 import { 
-  connectDatabase, 
-  closeDatabase, 
+  connectDatabase,
+  checkContentInQ,
   getContentFromQ,
   getRenderSettings,
   addPostingFeed,
-  deleteContentFromQ,
-  setupGracefulShutdown
+  deleteContentFromQ
 } from './database.js';
 
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
 import { sendYoutube, sendReelsToInstagram, sendTikTok, generateName, generateDescription } from './sendVideo.js';
 import { sendStories } from './sendStories.js';
+import fs from 'fs';
 
-async function processing() {
+let isInProgress = false;
+
+/**
+ * Worker для обработки очереди контента
+ */
+async function processingWorker() {
   try {
+    // Ensure connection
     await connectDatabase();
-  } catch (err) {
-    console.error('Failed to connect to MongoDB:', err.message);
-    process.exit(1);
-  }
 
+    // Check queue every 5 seconds
+    setInterval(async () => {
+      try {
+        const countInQ = await checkContentInQ();
+        if (!isInProgress && countInQ > 0) {
+          console.log('=================');
+          console.log('== Items In Q =', countInQ);
+          isInProgress = true;
+          await processContent();
+          isInProgress = false;
+        }
+      } catch (err) {
+        console.error('Error in processing worker:', err.message);
+        isInProgress = false;
+      }
+    }, 5000);
+
+    // Отправить сообщение что воркер готов
+    parentPort.postMessage({ ready: true });
+  } catch (err) {
+    console.error('Failed to start processing worker:', err.message);
+    parentPort.postMessage({ error: err.message });
+  }
+}
+
+async function processContent() {
   try {
     const subscription = await getContentFromQ();
 
@@ -64,11 +89,6 @@ async function processing() {
     console.error('Error during processing:', err.message);
   }
 }
-
-// Настроить graceful shutdown
-setupGracefulShutdown();
-
-processing();
 
 async function processImages(subscription, renderSettings) {
   const { 
@@ -165,6 +185,7 @@ async function processVideo(subscription) {
 
 function getBufferedImage(imagePath) {
   const imageBuffer = fs.readFileSync(imagePath);
-
   return imageBuffer;
 }
+
+processingWorker();

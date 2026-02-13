@@ -2,10 +2,12 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: './.env' });
 
 import { MongoClient, ObjectId } from 'mongodb';
+import { isMainThread } from 'node:worker_threads';
 
 /**
  * Централизованный модуль для работы с MongoDB
  * Использует singleton pattern для единого подключения
+ * Работает как в главном процессе, так и в worker threads
  */
 class DatabaseManager {
   constructor() {
@@ -14,6 +16,7 @@ class DatabaseManager {
     this.isConnecting = false;
     this.isDev = process.env.environment === 'dev';
     this.debugMode = process.env.MONGODB_DEBUG === 'true';
+    this.verboseMode = process.env.MONGODB_VERBOSE === 'true';
     this.heartbeatFailCount = 0;
     this.maxHeartbeatFails = 3;
     this.connectionRetries = 0;
@@ -23,6 +26,12 @@ class DatabaseManager {
 
   log(...args) {
     if (this.debugMode) {
+      console.log('[MongoDB]', ...args);
+    }
+  }
+
+  logVerbose(...args) {
+    if (this.verboseMode || this.debugMode) {
       console.log('[MongoDB]', ...args);
     }
   }
@@ -78,7 +87,7 @@ class DatabaseManager {
 
       this.setupEventListeners();
       
-      console.log('✓ Connected to MongoDB');
+      this.logVerbose('Connected to MongoDB');
       return this.client;
     } catch (error) {
       this.isConnected = false;
@@ -116,7 +125,7 @@ class DatabaseManager {
     });
 
     this.client.on('topologyClosed', () => {
-      console.error('MongoDB topology closed');
+      this.log('MongoDB topology closed');
       this.isConnected = false;
       this.client = null;
     });
@@ -199,7 +208,7 @@ class DatabaseManager {
         await this.client.close();
         this.isConnected = false;
         this.client = null;
-        console.log('✓ MongoDB connection closed');
+        this.log('MongoDB connection closed');
       }
     } catch (err) {
       console.error('Error closing MongoDB connection:', err.message);

@@ -3,6 +3,12 @@ dotenv.config({
   path: './.env'
 });
 
+/**
+ * Standalone процесс для обработки подписок
+ * Используется для тестирования и ручного запуска
+ * В master.js используется subscriptionsWorker.js для лучшей производительности
+ */
+
 const silenceMode = process.env.silenceMode === 'true';
 
 import { Command } from'commander';
@@ -29,8 +35,6 @@ import {
 } from './database.js';
 
 async function userSubscriptionsProcess() {
-  let connected = false;
-  
   try {
     // -- Set Time Zone
     if (options.country === 'by') {
@@ -40,7 +44,6 @@ async function userSubscriptionsProcess() {
     }
 
     await connectDatabase();
-    connected = true;
 
     // -- Get Time
     const now = options.datetime ? new Date(options.datetime) : new Date();
@@ -100,10 +103,6 @@ async function userSubscriptionsProcess() {
   } catch (err) {
     console.error('Error in userSubscriptionsProcess:', err.message);
     process.exit(1);
-  } finally {
-    if (connected) {
-      await closeDatabase();
-    }
   }
 }
 

@@ -5,8 +5,41 @@ dotenv.config({
 });
 import { CronJob } from 'cron';
 import { spawn } from 'node:child_process';
+import { Worker } from 'node:worker_threads';
+import { connectDatabase, setupGracefulShutdown } from './database.js';
+
+/**
+ * Master процесс управления приложением
+ * 
+ * АРХИТЕКТУРА:
+ * - Master создает одно подключение к MongoDB
+ * - Worker threads переиспользуют это подключение через singleton
+ * - Короткоживущие задачи (subscriptions) работают как воркеры
+ * - Долгоживущие задачи (bot, media manager) работают как spawn процессы
+ * 
+ * ПРЕИМУЩЕСТВА:
+ * - Одно подключение к БД для всех subscription задач
+ * - Нет лишних подключений/отключений
+ * - Чистые логи без "topology closed"
+ * - Лучшая производительность и использование ресурсов
+ */
+
+// Map для отслеживания активных воркеров
+const activeWorkers = new Map();
 
 async function masterRun() {
+  // Подключиться к БД один раз для всех воркеров
+  try {
+    await connectDatabase();
+    console.log('✓ Master connected to MongoDB');
+  } catch (err) {
+    console.error('Failed to connect to MongoDB:', err.message);
+    process.exit(1);
+  }
+
+  // Настроить graceful shutdown
+  setupGracefulShutdown();
+
   telegramBotJob();
   
   processingQJob();
@@ -78,74 +111,66 @@ async function masterRun() {
   console.log('==========================================');
 }
 
+/**
+ * Запустить подписочный воркер
+ */
+function runSubscriptionWorker(country, collection, time = null) {
+  const workerId = `${country}-${collection}-${Date.now()}`;
+  
+  // Проверить есть ли уже активный воркер для этой комбинации
+  const existingKey = `${country}-${collection}`;
+  if (activeWorkers.has(existingKey)) {
+    return; // Пропустить если воркер уже работает
+  }
+
+  const worker = new Worker('./subscriptionsWorker.js', {
+    workerData: { country, collection, time }
+  });
+
+  activeWorkers.set(existingKey, worker);
+
+  worker.on('message', (result) => {
+    if (!result.success) {
+      console.error(`Worker error [${country}/${collection}]:`, result.error);
+    }
+  });
+
+  worker.on('error', (err) => {
+    console.error(`Worker error [${country}/${collection}]:`, err.message);
+  });
+
+  worker.on('exit', (code) => {
+    activeWorkers.delete(existingKey);
+    if (code !== 0) {
+      console.error(`Worker [${country}/${collection}] exited with code ${code}`);
+    }
+  });
+
+  return worker;
+}
+
 async function userSubscriptionsJobPL() {
-  const userSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess_v2', '--country', 'pl', '--collection', 'subscriptions-users']);
-
-  userSubscriptionsProcessPL.stdout.on('data', (data) => {
-    console.log(`${data}`);
-  });
-
-  userSubscriptionsProcessPL.stderr.on('data', (data) => {
-    console.error(`${data}`);
-  });
-
-  userSubscriptionsProcessPL.on('close', (code) => {});
+  runSubscriptionWorker('pl', 'subscriptions-users');
 }
 
 async function userSubscriptionsJobBY() {
-  const userSubscriptionsJobBY = spawn('node', ['./subscriptionsProcess_v2', '--country', 'by', '--collection', 'subscriptions-users']);
-
-  userSubscriptionsJobBY.stdout.on('data', (data) => {
-    console.log(`${data}`);
-  });
-
-  userSubscriptionsJobBY.stderr.on('data', (data) => {
-    console.error(`${data}`);
-  });
-
-  userSubscriptionsJobBY.on('close', (code) => {});
+  runSubscriptionWorker('by', 'subscriptions-users');
 }
 
 async function telegramSubscriptionsJobPL() {
-  const telegramSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess_v2', '--country', 'pl', '--collection', 'subscriptions-telegram']);
-
-  telegramSubscriptionsProcessPL.stdout.on('data', (data) => {
-    console.log(`${data}`);
-  });
-
-  telegramSubscriptionsProcessPL.stderr.on('data', (data) => {
-    console.error(`${data}`);
-  });
-
-  telegramSubscriptionsProcessPL.on('close', (code) => {});
+  runSubscriptionWorker('pl', 'subscriptions-telegram');
 }
 
 async function telegramSubscriptionsJobBY() {
-  const telegramSubscriptionsProcessBY = spawn('node', ['./subscriptionsProcess_v2', '--country', 'by', '--collection', 'subscriptions-telegram']);
-
-  telegramSubscriptionsProcessBY.stdout.on('data', (data) => {
-    console.log(`${data}`);
-  });
-
-  telegramSubscriptionsProcessBY.stderr.on('data', (data) => {
-    console.error(`${data}`);
-  });
-
-  telegramSubscriptionsProcessBY.on('close', (code) => {});
+  runSubscriptionWorker('by', 'subscriptions-telegram');
 }
 
 async function videoSubscriptionsJobPL() {
-  const videoSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess_v2', '--country', 'pl', '--collection', 'subscriptions-video']);
+  runSubscriptionWorker('pl', 'subscriptions-video');
+}
 
-  videoSubscriptionsProcessPL.stdout.on('data', (data) => {
-    console.log(`${data}`);
-  });
-
-  videoSubscriptionsProcessPL.stderr.on('data', (data) => {
-    console.error(`${data}`);
-  });
-
-  videoSubscriptionsProcessPL.on('close', () => {});
+async function videoSubscriptionsJobBY() {
+  runSubscriptionWorker('by', 'subscriptions-video');
 }
 
 async function videoSubscriptionsJobBY() {
@@ -283,21 +308,23 @@ async function processingQJob() {
   console.log(`========== ${time} ==========`);
   console.log('==========================================');
 
-  const processingQProcess = spawn('node', ['./runContentProcessing.js']);
+  const processingWorker = new Worker('./processingWorker.js');
 
-  processingQProcess.stdout.on('data', (data) => {
-    console.log(`${data}`);
+  processingWorker.on('message', (msg) => {
+    if (msg.ready) {
+      console.log('✓ Processing worker ready');
+    } else if (msg.error) {
+      console.error('Processing worker error:', msg.error);
+    }
   });
 
-  processingQProcess.stderr.on('data', (data) => {
-    console.error(`${data}`);
+  processingWorker.on('error', (err) => {
+    console.error('Processing worker error:', err.message);
   });
 
-  processingQProcess.on('close', (code) => {
+  processingWorker.on('exit', (code) => {
     console.log('******************************************');
-    console.log(`PROCESSING CONTENT FROM Q Process exited with code ${code}`);
-    console.log('***  EXIT JOB: PROCESSING CONTENT FROM Q  ****');
-    console.log(`********** ${time} **********`);
+    console.log(`PROCESSING WORKER exited with code ${code}`);
     console.log('******************************************');
   });
 }

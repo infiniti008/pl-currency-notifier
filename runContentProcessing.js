@@ -7,7 +7,7 @@ async function runner() {
   // Initial connection
   try {
     await connectDatabase();
-    console.log('Runner connected to MongoDB');
+    console.log('✓ Runner ready and connected to MongoDB');
   } catch (err) {
     console.error('Failed to connect initially:', err.message);
   }
