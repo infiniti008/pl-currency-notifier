@@ -173,75 +173,8 @@ async function videoSubscriptionsJobBY() {
   runSubscriptionWorker('by', 'subscriptions-video');
 }
 
-async function videoSubscriptionsJobBY() {
-  const videoSubscriptionsProcessBY = spawn('node', ['./subscriptionsProcess_v2', '--country', 'by', '--collection', 'subscriptions-video']);
-
-  videoSubscriptionsProcessBY.stdout.on('data', (data) => {
-    console.log(`${data}`);
-  });
-
-  videoSubscriptionsProcessBY.stderr.on('data', (data) => {
-    console.error(`${data}`);
-  });
-
-  videoSubscriptionsProcessBY.on('close', (code) => {});
-}
-
-async function storiesSubscriptionsJobPL() {
-  const time = new Date().toLocaleString();
-  // console.log('==========================================');
-  // console.log('==== START JOB: STORIES Subscriptions PL ====');
-  // console.log(`========== ${time} ==========`);
-  // console.log('==========================================');
-
-  const storiesSubscriptionsProcessPL = spawn('node', ['./subscriptionsProcess', '--country', 'pl', '--collection', 'subscriptions-stories']);
-
-  storiesSubscriptionsProcessPL.stdout.on('data', (data) => {
-    console.log(`${data}`);
-  });
-
-  storiesSubscriptionsProcessPL.stderr.on('data', (data) => {
-    console.error(`${data}`);
-  });
-
-  storiesSubscriptionsProcessPL.on('close', (code) => {
-    // console.log(`Stories Subscriptions Process exited with code ${code}`);
-    if (code === 0) {
-      // console.log('******************************************');
-      // console.log('***  EXIT JOB: STORIES Subscriptions PL  ****');
-      // console.log(`********** ${time} **********`);
-      // console.log('******************************************');
-    }
-  });
-}
-
-async function storiesSubscriptionsJobBY() {
-  const time = new Date().toLocaleString();
-  // console.log('==========================================');
-  // console.log('==== START JOB: STORIES Subscriptions BY ====');
-  // console.log(`========== ${time} ==========`);
-  // console.log('==========================================');
-
-  const storiesSubscriptionsProcessBY = spawn('node', ['./subscriptionsProcess', '--country', 'by', '--collection', 'subscriptions-stories']);
-
-  storiesSubscriptionsProcessBY.stdout.on('data', (data) => {
-    console.log(`${data}`);
-  });
-
-  storiesSubscriptionsProcessBY.stderr.on('data', (data) => {
-    console.error(`${data}`);
-  });
-
-  storiesSubscriptionsProcessBY.on('close', (code) => {
-    // console.log(`Stories Subscriptions Process exited with code ${code}`);
-    if (code === 0) {
-      // console.log('******************************************');
-      // console.log('***  EXIT JOB: STORIES Subscriptions BY  ****');
-      // console.log(`********** ${time} **********`);
-      // console.log('******************************************');
-    }
-  });
-}
+// Stories functions закомментированы в cron и не используются
+// Если понадобятся - можно добавить через runSubscriptionWorker
 
 async function deleteMediaJob() {
   const time = new Date().toLocaleString();

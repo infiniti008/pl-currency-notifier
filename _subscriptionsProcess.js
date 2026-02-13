@@ -1,3 +1,9 @@
+/**
+ * @deprecated Используйте test.js или master.js -> subscriptionsWorker.js
+ * 
+ * Этот файл устаревший и не должен использоваться в production
+ */
+
 import * as dotenv from 'dotenv';
 dotenv.config({
   path: './.env'
@@ -29,7 +35,7 @@ import {
   addContentToQ,
   getRenderSettings,
   removeAllFromManagerQ
-} from './base.js';
+} from './_base.js';
 
 async function userSubscriptionsProcess() {
   try {

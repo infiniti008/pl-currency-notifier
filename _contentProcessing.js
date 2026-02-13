@@ -1,3 +1,19 @@
+/**
+ * @deprecated В production используется processingWorker.js
+ * 
+ * STANDALONE ПРОЦЕСС - только для тестирования!
+ * 
+ * Production использование:
+ * - master.js -> processingWorker.js (worker thread, общее подключение к БД)
+ * 
+ * Этот файл используется ТОЛЬКО для:
+ * - Тестирования обработки контента вне master процесса
+ * - Отладки логики рендеринга
+ * - Разовой обработки элемента из очереди
+ * 
+ * ВНИМАНИЕ: Создает свое подключение к БД (не оптимально для production)
+ */
+
 import * as dotenv from 'dotenv';
 dotenv.config({
   path: './.env'

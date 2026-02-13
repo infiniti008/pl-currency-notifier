@@ -6,10 +6,10 @@
   "main": "request.js",
   "scripts": {
     "start": "node master.js",
-    "test-user": "node subscriptionsProcess_v2 --country pl --collection subscriptions-users --time 08:00",
-    "test-telegram": "node subscriptionsProcess_v2 --country pl --collection subscriptions-telegram --time 10:20",
-    "test-video": "node subscriptionsProcess_v2 --country by --collection subscriptions-video --time 17:15",
-    "test-stories": "node subscriptionsProcess_v2 --country by --collection subscriptions-stories --time 17:10",
+    "test-user": "node test.js --country pl --collection subscriptions-users --time 08:00",
+    "test-telegram": "node test.js --country pl --collection subscriptions-telegram --time 10:20",
+    "test-video": "node test.js --country by --collection subscriptions-video --time 17:15",
+    "test-stories": "node test.js --country by --collection subscriptions-stories --time 17:10",
     "test-streem": "node ./streem-youtube/index.js --country by --collection streem-youtube --time 09:00",
     "test-youtube": "node postYoutube.js"
   },

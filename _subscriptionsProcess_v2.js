@@ -1,13 +1,23 @@
+/**
+ * @deprecated В production используется subscriptionsWorker.js
+ * 
+ * STANDALONE ПРОЦЕСС - только для тестирования!
+ * 
+ * Production использование:
+ * - master.js -> subscriptionsWorker.js (worker threads, общее подключение к БД)
+ * 
+ * Этот файл используется ТОЛЬКО для:
+ * - Тестирования: npm run test-user, test-telegram, test-video
+ * - Ручного запуска конкретной подписки
+ * - Отладки вне master процесса
+ * 
+ * ВНИМАНИЕ: Создает свое подключение к БД (не оптимально для production)
+ */
+
 import * as dotenv from 'dotenv';
 dotenv.config({
   path: './.env'
 });
-
-/**
- * Standalone процесс для обработки подписок
- * Используется для тестирования и ручного запуска
- * В master.js используется subscriptionsWorker.js для лучшей производительности
- */
 
 const silenceMode = process.env.silenceMode === 'true';
 

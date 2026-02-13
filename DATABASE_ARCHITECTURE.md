@@ -22,14 +22,14 @@ Master Process (master.js)
 - **database.js** - централизованный модуль для работы с БД (singleton)
 - **subscriptionsWorker.js** - worker thread для обработки подписок
 - **processingWorker.js** - worker thread для обработки очереди
+- **test.js** - wrapper для тестирования workers
 
-### Старые файлы (для тестирования):
-- **subscriptionsProcess_v2.js** - standalone процесс, использует database.js
-- **contentProcessing.js** - standalone процесс, использует database.js
-- **runContentProcessing.js** - standalone процесс, использует database.js
-
-### Устаревшие файлы:
-- **base.js** - старый модуль БД (можно удалить после полной миграции)
+### Старые файлы (deprecated, не используются в production):
+- **_subscriptionsProcess_v2.js** - standalone процесс (deprecated)
+- **_subscriptionsProcess.js** - старый standalone процесс (deprecated)
+- **_contentProcessing.js** - standalone процесс (deprecated)
+- **_runContentProcessing.js** - standalone процесс (deprecated)
+- **_base.js** - старый модуль БД (deprecated)
 
 ## Переменные окружения
 
@@ -64,17 +64,18 @@ Worker threads работают в том же процессе что и master
 - Не создают лишние подключения/отключения
 - Работают параллельно без конфликтов
 
-### 3. Тестирование (standalone)
+### 3. Тестирование (через test wrapper)
 ```bash
-npm run test-user      # subscriptionsProcess_v2.js
-npm run test-telegram  # subscriptionsProcess_v2.js
-npm run test-video     # subscriptionsProcess_v2.js
+npm run test-user      # test.js -> subscriptionsWorker.js
+npm run test-telegram  # test.js -> subscriptionsWorker.js
+npm run test-video     # test.js -> subscriptionsWorker.js
 ```
 
-Standalone процессы:
-- Создают свое подключение к БД
-- Закрывают его после завершения работы
-- Используют database.js (новый модуль)
+Test wrapper:
+- Подключается к БД один раз
+- Запускает нужный worker с параметрами
+- Использует ту же логику что и production
+- Показывает понятный вывод результатов
 
 ## Преимущества новой архитектуры
 
@@ -98,9 +99,9 @@ Standalone процессы:
 - Простой API для работы с данными
 - Легко добавлять новые функции
 
-## Миграция с base.js на database.js
+## Миграция на database.js
 
-### Было:
+### Было (старый base.js):
 ```javascript
 import BaseClient from './base.js';
 const base = new BaseClient(true);
@@ -110,7 +111,7 @@ const data = await base.getContentFromQ();
 await base.closeConnection();
 ```
 
-### Стало:
+### Стало (новый database.js):
 ```javascript
 import { 
   connectDatabase, 
@@ -121,6 +122,28 @@ import {
 await connectDatabase();
 const data = await getContentFromQ();
 setupGracefulShutdown();
+```
+
+## Тестирование
+
+### Вручную запустить тест:
+```bash
+# Тест подписок пользователей
+node test.js --country pl --collection subscriptions-users --time 08:00
+
+# Тест конкретной подписки по ID
+node test.js --country pl --collection subscriptions-users --id 507f1f77bcf86cd799439011
+
+# Тест видео подписок
+node test.js --country by --collection subscriptions-video --time 17:15
+```
+
+### Через npm scripts:
+```bash
+npm run test-user
+npm run test-telegram
+npm run test-video
+npm run test-stories
 ```
 
 ## Мониторинг
