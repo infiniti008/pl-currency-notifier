@@ -24,6 +24,8 @@ import BaseClient from './base.js';
 const base = new BaseClient(true);
 
 async function userSubscriptionsProcess() {
+  let connected = false;
+  
   try {
     // -- Set Time Zone
     if (options.country === 'by') {
@@ -32,12 +34,8 @@ async function userSubscriptionsProcess() {
       process.env.TZ = 'Europe/Warsaw';
     }
 
-    try {
-      await base.connect();
-    } catch (err) {
-      console.error('Failed to connect to MongoDB:', err.message);
-      process.exit(1);
-    }
+    await base.connect();
+    connected = true;
 
     // -- Get Time
     const now = options.datetime ? new Date(options.datetime) : new Date();
@@ -50,7 +48,6 @@ async function userSubscriptionsProcess() {
     let allSubscriptionsWithTimeByCountry = await base.getAllSubscriptionsByTimeByCountry(time, options.country, options.collection, options.id);
 
     if (!allSubscriptionsWithTimeByCountry) {
-      await base.closeConnection();
       return;
     }
 
@@ -79,8 +76,6 @@ async function userSubscriptionsProcess() {
       if (!silenceMode) {
         console.log(`Subscriptions Count = ${allSubscriptionsWithTimeByCountry.length} | Country = ${options.country} | Time = ${time} | Collection = ${options.collection}`);
       }
-
-      await base.closeConnection();
       return;
     }
 
@@ -97,11 +92,13 @@ async function userSubscriptionsProcess() {
     });
 
     await Promise.all(addToQArr);
-
-    await base.closeConnection();
   } catch (err) {
-    console.log(err);
-    await base.closeConnection();
+    console.error('Error in userSubscriptionsProcess:', err.message);
+    process.exit(1);
+  } finally {
+    if (connected) {
+      await base.closeConnection();
+    }
   }
 }
 

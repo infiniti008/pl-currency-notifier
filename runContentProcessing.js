@@ -2,13 +2,19 @@ import { spawn } from 'node:child_process';
 import BaseClient from './base.js';
 
 let isInProgress = false;
+const base = new BaseClient(true);
 
 async function runner() {
-  setInterval(async () => {
-    const base = new BaseClient(true);
-    try {
-      await base.connect();
+  // Initial connection
+  try {
+    await base.connect();
+    console.log('Runner connected to MongoDB');
+  } catch (err) {
+    console.error('Failed to connect initially:', err.message);
+  }
 
+  setInterval(async () => {
+    try {
       const countInQ = await base.checkContentInQ();
       if (!isInProgress && countInQ > 0) {
         console.log('=================');
@@ -16,13 +22,28 @@ async function runner() {
         isInProgress = true;
         runContentProcessing();
       }
-
-      await base.closeConnection();
     } catch (err) {
       console.error('Error in runner:', err.message);
-      // Connection will be retried on next interval
+      // Connection will be retried by ensureConnection in checkContentInQ
     }
   }, 5000);
+
+  // Handle graceful shutdown
+  process.on('SIGINT', async () => {
+    console.log('\nShutting down runner...');
+    if (base.client) {
+      await base.client.close();
+    }
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', async () => {
+    console.log('\nShutting down runner...');
+    if (base.client) {
+      await base.client.close();
+    }
+    process.exit(0);
+  });
 }
 
 function runContentProcessing() {

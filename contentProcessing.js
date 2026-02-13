@@ -21,39 +21,43 @@ async function processing() {
     process.exit(1);
   }
 
-  const subscription = await base.getContentFromQ();
+  try {
+    const subscription = await base.getContentFromQ();
 
-  if (subscription) {
-    subscription.processes = {};
-    const renderSettings = await base.getRenderSettings();
-    const { 
-      image_shouldRender = true,
-      video_shouldRender = true
-    } = renderSettings;
+    if (subscription) {
+      subscription.processes = {};
+      const renderSettings = await base.getRenderSettings();
+      const { 
+        image_shouldRender = true,
+        video_shouldRender = true
+      } = renderSettings;
 
-    let t = process.hrtime();
+      let t = process.hrtime();
 
-    console.log(`== RUN: CONTENT PROCESSING ==`);
-    console.log(`== [ ${subscription.time} ] [ ${subscription.country} ] [ ${subscription.platform} ]`);
+      console.log(`== RUN: CONTENT PROCESSING ==`);
+      console.log(`== [ ${subscription.time} ] [ ${subscription.country} ] [ ${subscription.platform} ]`);
 
-    if (video_shouldRender && subscription.platform === 'subscriptions-video') {
-      await processVideo(subscription);
-    } else if (image_shouldRender) {
-      await processImages(subscription, renderSettings);
+      if (video_shouldRender && subscription.platform === 'subscriptions-video') {
+        await processVideo(subscription);
+      } else if (image_shouldRender) {
+        await processImages(subscription, renderSettings);
+      }
+
+      if (subscription.shouldPostToFeed) {
+        await base.addPostingFeed(subscription);
+      }
+
+      await base.deleteContentFromQ(subscription.subscriptionId);
+
+      t = process.hrtime(t);
+      console.log(`== EXECUTION TIME: [ ${t[0]} ]`);
+      console.log(`== END: CONTENT PROCESSING ==`);
     }
-
-    if (subscription.shouldPostToFeed) {
-      await base.addPostingFeed(subscription);
-    }
-
-    await base.deleteContentFromQ(subscription.subscriptionId);
-
-    t = process.hrtime(t);
-    console.log(`== EXECUTION TIME: [ ${t[0]} ]`);
-    console.log(`== END: CONTENT PROCESSING ==`);
+  } catch (err) {
+    console.error('Error during processing:', err.message);
+  } finally {
+    await base.closeConnection();
   }
-
-  await base.closeConnection();
 }
 
 processing();
