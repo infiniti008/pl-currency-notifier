@@ -24,9 +24,6 @@ import { connectDatabase, setupGracefulShutdown } from './database.js';
  * - Лучшая производительность и использование ресурсов
  */
 
-// Map для отслеживания активных воркеров
-const activeWorkers = new Map();
-
 async function masterRun() {
   // Подключиться к БД один раз для всех воркеров
   try {
@@ -47,6 +44,9 @@ async function masterRun() {
   new CronJob(
     '*/1 * * * *',
     async function() {
+      const now = new Date().toLocaleTimeString('ru-RU');
+      console.log(`\n⏰ [${now}] Cron job triggered - checking subscriptions...`);
+      
       try {
         userSubscriptionsJobPL();
         userSubscriptionsJobBY();
@@ -60,7 +60,7 @@ async function masterRun() {
         // storiesSubscriptionsJobPL();
         // storiesSubscriptionsJobBY();
       } catch(err) {
-        console.log(err);
+        console.error('❌ Cron job error:', err);
       }
     },
     async function() {
@@ -109,40 +109,36 @@ async function masterRun() {
   console.log('==========================================');
   console.log('====== APPLICATION HAS BEEN STARTED ======');
   console.log('==========================================');
+  console.log('⏰ Cron schedule: every minute');
+  console.log('� Workers will run every minute to fetch fresh data');
+  console.log('==========================================\n');
 }
 
 /**
  * Запустить подписочный воркер
  */
 function runSubscriptionWorker(country, collection, time = null) {
-  const workerId = `${country}-${collection}-${Date.now()}`;
-  
-  // Проверить есть ли уже активный воркер для этой комбинации
-  const existingKey = `${country}-${collection}`;
-  if (activeWorkers.has(existingKey)) {
-    return; // Пропустить если воркер уже работает
-  }
+  console.log(`🚀 Starting worker [${country}/${collection}]`);
 
   const worker = new Worker('./subscriptionsWorker.js', {
     workerData: { country, collection, time }
   });
 
-  activeWorkers.set(existingKey, worker);
-
   worker.on('message', (result) => {
-    if (!result.success) {
-      console.error(`Worker error [${country}/${collection}]:`, result.error);
+    if (result.success) {
+      console.log(`✓ Worker [${country}/${collection}] completed - processed ${result.count} subscriptions`);
+    } else {
+      console.error(`❌ Worker error [${country}/${collection}]:`, result.error);
     }
   });
 
   worker.on('error', (err) => {
-    console.error(`Worker error [${country}/${collection}]:`, err.message);
+    console.error(`❌ Worker error [${country}/${collection}]:`, err.message);
   });
 
   worker.on('exit', (code) => {
-    activeWorkers.delete(existingKey);
     if (code !== 0) {
-      console.error(`Worker [${country}/${collection}] exited with code ${code}`);
+      console.error(`❌ Worker [${country}/${collection}] exited with code ${code}`);
     }
   });
 
