@@ -20,8 +20,13 @@ program
 
 const options = program.opts();
 
-import BaseClient from './base.js';
-const base = new BaseClient(true);
+import { 
+  connectDatabase, 
+  closeDatabase, 
+  getAllSubscriptionsByTimeByCountry,
+  addContentToQ,
+  setupGracefulShutdown
+} from './database.js';
 
 async function userSubscriptionsProcess() {
   let connected = false;
@@ -34,7 +39,7 @@ async function userSubscriptionsProcess() {
       process.env.TZ = 'Europe/Warsaw';
     }
 
-    await base.connect();
+    await connectDatabase();
     connected = true;
 
     // -- Get Time
@@ -45,7 +50,7 @@ async function userSubscriptionsProcess() {
     }
 
     // -- Get Subscriptions
-    let allSubscriptionsWithTimeByCountry = await base.getAllSubscriptionsByTimeByCountry(time, options.country, options.collection, options.id);
+    let allSubscriptionsWithTimeByCountry = await getAllSubscriptionsByTimeByCountry(time, options.country, options.collection, options.id);
 
     if (!allSubscriptionsWithTimeByCountry) {
       return;
@@ -88,7 +93,7 @@ async function userSubscriptionsProcess() {
     allSubscriptionsWithTimeByCountry.forEach((subscription) => {
       subscription.subscriptionId = subscription._id.toString();
       delete subscription._id;
-      addToQArr.push(base.addContentToQ(subscription));
+      addToQArr.push(addContentToQ(subscription));
     });
 
     await Promise.all(addToQArr);
@@ -97,9 +102,12 @@ async function userSubscriptionsProcess() {
     process.exit(1);
   } finally {
     if (connected) {
-      await base.closeConnection();
+      await closeDatabase();
     }
   }
 }
+
+// Настроить graceful shutdown
+setupGracefulShutdown();
 
 userSubscriptionsProcess();

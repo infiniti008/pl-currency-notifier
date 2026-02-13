@@ -1,13 +1,12 @@
 import { spawn } from 'node:child_process';
-import BaseClient from './base.js';
+import { connectDatabase, checkContentInQ, setupGracefulShutdown } from './database.js';
 
 let isInProgress = false;
-const base = new BaseClient(true);
 
 async function runner() {
   // Initial connection
   try {
-    await base.connect();
+    await connectDatabase();
     console.log('Runner connected to MongoDB');
   } catch (err) {
     console.error('Failed to connect initially:', err.message);
@@ -15,7 +14,7 @@ async function runner() {
 
   setInterval(async () => {
     try {
-      const countInQ = await base.checkContentInQ();
+      const countInQ = await checkContentInQ();
       if (!isInProgress && countInQ > 0) {
         console.log('=================');
         console.log('== Items In Q =', countInQ);
@@ -24,27 +23,13 @@ async function runner() {
       }
     } catch (err) {
       console.error('Error in runner:', err.message);
-      // Connection will be retried by ensureConnection in checkContentInQ
+      // Connection will be retried automatically by ensureConnection
     }
   }, 5000);
-
-  // Handle graceful shutdown
-  process.on('SIGINT', async () => {
-    console.log('\nShutting down runner...');
-    if (base.client) {
-      await base.client.close();
-    }
-    process.exit(0);
-  });
-
-  process.on('SIGTERM', async () => {
-    console.log('\nShutting down runner...');
-    if (base.client) {
-      await base.client.close();
-    }
-    process.exit(0);
-  });
 }
+
+// Настроить graceful shutdown
+setupGracefulShutdown();
 
 function runContentProcessing() {
   const runContentProcess = spawn('node', ['./contentProcessing']);

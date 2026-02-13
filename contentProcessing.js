@@ -5,8 +5,15 @@ dotenv.config({
 
 import fs from 'fs';
 
-import BaseClient from './base.js';
-const base = new BaseClient(true);
+import { 
+  connectDatabase, 
+  closeDatabase, 
+  getContentFromQ,
+  getRenderSettings,
+  addPostingFeed,
+  deleteContentFromQ,
+  setupGracefulShutdown
+} from './database.js';
 
 import generators from "./renders.js";
 import { sendPhoto } from './sendPhoto.js';
@@ -15,18 +22,18 @@ import { sendStories } from './sendStories.js';
 
 async function processing() {
   try {
-    await base.connect();
+    await connectDatabase();
   } catch (err) {
     console.error('Failed to connect to MongoDB:', err.message);
     process.exit(1);
   }
 
   try {
-    const subscription = await base.getContentFromQ();
+    const subscription = await getContentFromQ();
 
     if (subscription) {
       subscription.processes = {};
-      const renderSettings = await base.getRenderSettings();
+      const renderSettings = await getRenderSettings();
       const { 
         image_shouldRender = true,
         video_shouldRender = true
@@ -44,10 +51,10 @@ async function processing() {
       }
 
       if (subscription.shouldPostToFeed) {
-        await base.addPostingFeed(subscription);
+        await addPostingFeed(subscription);
       }
 
-      await base.deleteContentFromQ(subscription.subscriptionId);
+      await deleteContentFromQ(subscription.subscriptionId);
 
       t = process.hrtime(t);
       console.log(`== EXECUTION TIME: [ ${t[0]} ]`);
@@ -56,9 +63,12 @@ async function processing() {
   } catch (err) {
     console.error('Error during processing:', err.message);
   } finally {
-    await base.closeConnection();
+    await closeDatabase();
   }
 }
+
+// Настроить graceful shutdown
+setupGracefulShutdown();
 
 processing();
 
